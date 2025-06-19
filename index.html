@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catching Things Idle Game</title>
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the timer bar */
+        #timer-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 9999px; /* Tailwind's rounded-full */
+            overflow: hidden; /* Ensure the bar stays within bounds */
+        }
+
+        #timer-bar {
+            height: 24px; /* Tailwind's h-6 */
+            background-color: #4CAF50; /* Green color for progress */
+            width: 100%; /* Starts full, decreases */
+            border-radius: 9999px; /* Tailwind's rounded-full */
+            transition: width linear; /* Smooth transition for the timer bar */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.875rem; /* Tailwind's text-sm */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans text-inter">
+    <div id="game-container" class="flex flex-col md:flex-row bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl">
+        <!-- Encounter Area -->
+        <div class="flex-1 p-4 flex flex-col items-center justify-center space-y-6 md:border-r md:border-gray-200">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Current Encounter</h1>
+            <div class="bg-blue-100 rounded-lg p-4 shadow-md text-center w-full max-w-sm">
+                <h2 class="text-2xl font-semibold text-blue-800 mb-2">
+                    <span id="encounter-name">Waiting...</span>
+                </h2>
+                <img id="encounter-image" src="https://placehold.co/200x200/cccccc/333333?text=?" alt="Encountered Item" class="w-48 h-48 rounded-lg object-cover mx-auto shadow-md border-2 border-blue-300">
+            </div>
+
+            <!-- Timer Bar -->
+            <div id="timer-container" class="w-full max-w-sm mt-6 shadow-inner">
+                <div id="timer-bar" class="h-6 bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white text-sm font-bold rounded-full" style="width: 100%;">
+                    Next Encounter in <span id="timer-text">15</span>s
+                </div>
+            </div>
+        </div>
+
+        <!-- Collection Area -->
+        <div class="flex-1 p-4 md:pl-8 mt-8 md:mt-0">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Your Collection</h1>
+            <div class="bg-yellow-100 rounded-lg p-4 shadow-md h-96 overflow-y-auto">
+                <ul id="collection-list" class="space-y-2">
+                    <!-- Collection items will be added here -->
+                    <li class="text-gray-500 italic">No items collected yet.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Define the encounter data as a JavaScript array, simulating a parsed CSV
+        // In a real application, you might fetch this from a .csv or .json file.
+        const encounterData = [
+            { name: "Fluffy Cloud", imageUrl: "https://placehold.co/200x200/ADD8E6/000000?text=Cloud" },
+            { name: "Sparkling Gem", imageUrl: "https://placehold.co/200x200/8A2BE2/FFFFFF?text=Gem" },
+            { name: "Singing Bird", imageUrl: "https://placehold.co/200x200/A0DA8C/000000?text=Bird" },
+            { name: "Mystery Mushroom", imageUrl: "https://placehold.co/200x200/D2B48C/000000?text=Mushroom" },
+            { name: "Ancient Relic", imageUrl: "https://placehold.co/200x200/8B4513/FFFFFF?text=Relic" },
+            { name: "Whispering Leaf", imageUrl: "https://placehold.co/200x200/9ACD32/000000?text=Leaf" },
+            { name: "Shiny Pebble", imageUrl: "https://placehold.co/200x200/B0C4DE/000000?text=Pebble" },
+            { name: "Golden Acorn", imageUrl: "https://placehold.co/200x200/FFD700/000000?text=Acorn" },
+            { name: "Rainbow Orb", imageUrl: "https://placehold.co/200x200/FF00FF/FFFFFF?text=Orb" },
+            { name: "Star Dust", imageUrl: "https://placehold.co/200x200/C0C0C0/000000?text=Dust" }
+        ];
+
+        // Constants for game timing
+        const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
+
+        // DOM elements
+        const encounterNameElement = document.getElementById('encounter-name');
+        const encounterImageElement = document.getElementById('encounter-image');
+        const timerBarElement = document.getElementById('timer-bar');
+        const timerTextElement = document.getElementById('timer-text');
+        const collectionListElement = document.getElementById('collection-list');
+
+        // Game state variables
+        const collectedItems = new Set(); // Using a Set to store unique item names
+        let encounterIntervalId = null; // Stores the ID of the setInterval
+        let timerAnimationId = null; // Stores the ID of the requestAnimationFrame
+        let timerCountdownMs = ENCOUNTER_DURATION_MS; // Current countdown for the bar
+        let lastAnimationFrameTime = 0; // Timestamp of the last animation frame
+
+        /**
+         * Selects a random item from the encounterData array.
+         * @returns {Object} A random encounter item.
+         */
+        function getRandomEncounterItem() {
+            const randomIndex = Math.floor(Math.random() * encounterData.length);
+            return encounterData[randomIndex];
+        }
+
+        /**
+         * Updates the collection display on the UI.
+         */
+        function updateCollectionDisplay() {
+            // Clear existing list items
+            collectionListElement.innerHTML = '';
+
+            if (collectedItems.size === 0) {
+                collectionListElement.innerHTML = '<li class="text-gray-500 italic">No items collected yet.</li>';
+                return;
+            }
+
+            // Add each collected item to the list
+            collectedItems.forEach(itemName => {
+                const listItem = document.createElement('li');
+                listItem.className = 'bg-yellow-200 text-yellow-800 p-2 rounded-md shadow-sm flex items-center justify-between';
+                listItem.innerHTML = `<span>${itemName}</span> <span class="text-sm font-semibold text-green-700">NEW!</span>`;
+                collectionListElement.appendChild(listItem);
+            });
+        }
+
+        /**
+         * Processes an encounter: updates UI, checks for new items, adds to collection.
+         */
+        function processEncounter() {
+            const item = getRandomEncounterItem();
+
+            // Update encounter display
+            encounterNameElement.textContent = item.name;
+            encounterImageElement.src = item.imageUrl;
+            encounterImageElement.alt = item.name;
+
+            // Check if the item is new to the collection
+            if (!collectedItems.has(item.name)) {
+                collectedItems.add(item.name);
+                console.log(`New item collected: ${item.name}`);
+                updateCollectionDisplay(); // Update collection UI
+                // Potentially add points here in the future
+            } else {
+                console.log(`Encountered ${item.name} again.`);
+            }
+
+            // Reset timer for the next encounter
+            timerCountdownMs = ENCOUNTER_DURATION_MS;
+            lastAnimationFrameTime = performance.now(); // Reset timestamp for smooth animation
+            if (timerAnimationId) {
+                cancelAnimationFrame(timerAnimationId); // Stop previous animation if running
+            }
+            timerAnimationId = requestAnimationFrame(animateTimerBar); // Start new animation
+        }
+
+        /**
+         * Animates the timer bar and updates the countdown text.
+         * @param {DOMHighResTimeStamp} currentTime - The current time provided by requestAnimationFrame.
+         */
+        function animateTimerBar(currentTime) {
+            if (!lastAnimationFrameTime) {
+                lastAnimationFrameTime = currentTime;
+            }
+
+            const elapsed = currentTime - lastAnimationFrameTime;
+            lastAnimationFrameTime = currentTime;
+
+            timerCountdownMs -= elapsed;
+
+            if (timerCountdownMs < 0) {
+                timerCountdownMs = 0;
+            }
+
+            // Calculate progress for the bar (0% to 100%)
+            const progress = (timerCountdownMs / ENCOUNTER_DURATION_MS) * 100;
+            timerBarElement.style.width = `${progress}%`;
+
+            // Update countdown text (rounded up)
+            const secondsLeft = Math.ceil(timerCountdownMs / 1000);
+            timerTextElement.textContent = secondsLeft;
+
+            // Continue animation if time is still running
+            if (timerCountdownMs > 0) {
+                timerAnimationId = requestAnimationFrame(animateTimerBar);
+            } else {
+                // When countdown finishes, ensure bar is at 0%
+                timerBarElement.style.width = '0%';
+                timerTextElement.textContent = '0';
+            }
+        }
+
+        /**
+         * Starts the game by initiating the first encounter and setting up the interval.
+         */
+        function startGame() {
+            // Initial setup for collection display
+            updateCollectionDisplay();
+
+            // Perform the first encounter immediately
+            processEncounter();
+
+            // Set up the interval for subsequent encounters
+            encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS);
+        }
+
+        // Start the game when the window loads
+        window.onload = startGame;
+
+        // Cleanup on page unload (optional, but good practice for long-running intervals)
+        window.onbeforeunload = () => {
+            if (encounterIntervalId) {
+                clearInterval(encounterIntervalId);
+            }
+            if (timerAnimationId) {
+                cancelAnimationFrame(timerAnimationId);
+            }
+        };
+    </script>
+</body>
+</html>
