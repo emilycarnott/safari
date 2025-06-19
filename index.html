@@ -37,7 +37,10 @@
 
         /* Responsive height for region selector and collection list */
         @media (min-width: 768px) {
-            #region-selector-list, #collection-list-container {
+            /* Removed fixed max-height from #region-selector-list */
+            /* The parent flex container (md:w-1/5) will now handle scrolling */
+            /* #region-selector-list no longer needs max-height */
+            #collection-list-container {
                 max-height: calc(100vh - 200px); /* Adjust as needed for better fit */
             }
         }
@@ -82,7 +85,7 @@
             margin-bottom: 0;
         }
         .folder-content:not(.collapsed) {
-            max-height: 500px; /* Max height to allow transition, adjust as needed */
+            max-height: 9999px; /* Increased to a very large value for smooth expansion */
             opacity: 1;
             margin-bottom: 0.5rem;
         }
@@ -145,7 +148,7 @@
         const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
 
         // Constants for game timing
-        const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
+        const ENCOUNTER_DURATION_MS = 3 * 1000; // 15 seconds in milliseconds
 
         // DOM elements
         const mainEncounterArea = document.getElementById('main-encounter-area');
@@ -207,7 +210,7 @@
                 const parts = line.split(',');
                 if (parts.length >= 6) {
                     return {
-                        id: parts[0].trim(),
+                        id: parts[0].trim(), // Keep ID as string
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
@@ -442,16 +445,15 @@
                 regionSelectorList.appendChild(folderContentDiv);
 
                 // Set initial collapsed state based on folderStates
+                // Ensure the folder containing the current active region is open
                 if (folderStates[folderName] === false) { // If explicitly set to closed
                     folderContentDiv.classList.add('collapsed');
                     folderHeader.classList.add('collapsed');
-                } else if (Object.keys(folderStates).length === 0 && folderRegions[0] && folderRegions[0].id === 1) {
-                    // Default to open for the first folder found (which should contain Region 1 initially)
+                } else if (folderStates[folderName] === true) { // If explicitly set to open
                     folderContentDiv.classList.remove('collapsed');
                     folderHeader.classList.remove('collapsed');
-                    folderStates[folderName] = true;
-                } else if (folderStates[folderName] === undefined) {
-                    // If not explicitly set, default to open for the first folder, otherwise closed
+                } else { // If state is undefined (first render or new folder)
+                    // Open the folder if it contains the current region, otherwise keep it collapsed
                     if (folderRegions.some(region => region.id === currentRegionId)) {
                         folderContentDiv.classList.remove('collapsed');
                         folderHeader.classList.remove('collapsed');
@@ -461,10 +463,6 @@
                         folderHeader.classList.add('collapsed');
                         folderStates[folderName] = false;
                     }
-                } else {
-                    // Restore previously saved state
-                    folderContentDiv.classList.remove('collapsed');
-                    folderHeader.classList.remove('collapsed');
                 }
 
 
