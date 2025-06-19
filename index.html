@@ -75,7 +75,7 @@
     <script type="module">
         // Define the URL for your CSV data
         // IMPORTANT: Replace this with the actual URL to your CSV file on GitHub Pages.
-        // This CSV now expects 4 columns: ID, Name, Image URL, Region
+        // This CSV now expects 5 columns: ID, Name, Image URL, Region, Rarity
         const CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
 
         // Constants for game timing
@@ -102,7 +102,7 @@
 
         /**
          * Fetches and parses CSV data from the specified URL.
-         * Assumes CSV has columns: ID, Name, Image URL, Region.
+         * Assumes CSV has columns: ID, Name, Image URL, Region, Rarity.
          * @returns {Promise<Array<Object>>} A promise that resolves with an array of encounter objects.
          */
         async function fetchEncounterData() {
@@ -125,7 +125,7 @@
         /**
          * Parses CSV text into an array of objects.
          * Assumes the first line is the header, and subsequent lines are data.
-         * Expects columns: ID, Name, Image URL, Region (in that order, zero-indexed 0, 1, 2, 3)
+         * Expects columns: ID, Name, Image URL, Region, Rarity (in that order, zero-indexed 0, 1, 2, 3, 4)
          * @param {string} csvText - The raw CSV content as a string.
          * @returns {Array<Object>} An array of objects, each representing an encounter.
          */
@@ -136,13 +136,14 @@
             // Skip header and process data rows
             const data = lines.slice(1).map(line => {
                 const parts = line.split(','); // Simple split assuming no commas within fields
-                // Ensure there are enough parts before accessing them (expecting at least 4)
-                if (parts.length >= 4) {
+                // Ensure there are enough parts before accessing them (expecting at least 5)
+                if (parts.length >= 5) {
                     return {
-                        id: parts[0].trim(), // ID is not currently used in game logic, but can be kept
+                        id: parts[0].trim(),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
-                        region: parseInt(parts[3].trim(), 10) // Parse region as an integer
+                        region: parseInt(parts[3].trim(), 10), // Parse region as an integer
+                        rarity: parseInt(parts[4].trim(), 10)  // Parse rarity as an integer
                     };
                 }
                 return null; // Skip malformed rows
@@ -151,7 +152,8 @@
         }
 
         /**
-         * Selects a random item from the encounterData array, filtered by the current region.
+         * Selects a random item from the encounterData array, filtered by the current region,
+         * using a weighted random selection based on item rarity.
          * @returns {Object} A random encounter item or a placeholder if no data for the region.
          */
         function getRandomEncounterItem() {
@@ -161,8 +163,29 @@
             if (regionalEncounters.length === 0) {
                 return { name: `No encounters in Region ${currentRegion}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters" };
             }
-            const randomIndex = Math.floor(Math.random() * regionalEncounters.length);
-            return regionalEncounters[randomIndex];
+
+            // Calculate total weight for weighted random selection
+            let totalWeight = 0;
+            const weightedEncounters = regionalEncounters.map(item => {
+                // Weight is inverse of rarity. Rarity of 0 or less would be problematic, default to 1.
+                const weight = item.rarity > 0 ? 1 / item.rarity : 1;
+                totalWeight += weight;
+                return { ...item, weight: weight };
+            });
+
+            // Generate a random value within the total weight
+            let randomValue = Math.random() * totalWeight;
+
+            // Iterate through weighted encounters to find the selected item
+            for (const item of weightedEncounters) {
+                randomValue -= item.weight;
+                if (randomValue <= 0) {
+                    return item; // This is the chosen item
+                }
+            }
+
+            // Fallback in case of unexpected calculation (should not happen with correct logic)
+            return regionalEncounters[0];
         }
 
         /**
@@ -247,7 +270,6 @@
                 timerAnimationId = requestAnimationFrame(animateTimerBar);
             } else {
                 // When countdown finishes, ensure bar is at 0%
-                timerBarElement.style.width = '0%';
                 timerTextElement.textContent = '0';
             }
         }
