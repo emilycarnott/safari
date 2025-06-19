@@ -262,20 +262,11 @@
             }
 
             currentRegion = regionNum;
-            // REMOVED: collectedItems.clear(); // Collection now persists between regions
-            updateCollectionDisplay(); // Still update to refresh if needed, but won't clear
+            updateCollectionDisplay(); // Update to reflect any collection changes if items were added while in another region
             updateRegionDisplay(); // Update UI for active region
 
-            // Immediately process a new encounter for the new region
-            // Clear existing interval and timer animation before starting a new one
-            if (encounterIntervalId) {
-                clearInterval(encounterIntervalId);
-            }
-            if (timerAnimationId) {
-                cancelAnimationFrame(timerAnimationId);
-            }
-            processEncounter(); // Process first encounter in new region
-            encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS); // Restart interval
+            // No immediate encounter: The existing setInterval will trigger the next encounter
+            // at its scheduled time, and getRandomEncounterItem will then use the new currentRegion.
         }
 
         /**
