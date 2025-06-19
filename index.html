@@ -95,9 +95,9 @@
         // Define the URLs for your CSV data files
         // IMPORTANT: Replace these with the actual URLs to your CSV files on GitHub Pages.
         // encounters.csv expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
-        const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
+        const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/encounters_with_points.csv';
         // regions.csv expects 4 columns: ID, Name, Image URL, Unlock Points
-        const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
+        const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/regions.csv';
 
         // Constants for game timing
         const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
@@ -405,6 +405,8 @@
             encounterData = encounters;
             regionData = regions.sort((a, b) => a.id - b.id); // Sort regions by ID for consistent display
 
+            console.log("Loaded Region Data:", regionData); // <-- CHECK YOUR BROWSER'S CONSOLE FOR THIS!
+
             if (encounterData.length === 0 || regionData.length === 0) {
                 console.error('Failed to load all necessary game data. Game cannot start.');
                 encounterNameElement.textContent = 'Game data failed to load.';
@@ -413,13 +415,10 @@
                 return;
             }
 
-            // Set initial current region object
-            currentRegionObject = regionData.find(r => r.id === currentRegionId);
-            if (!currentRegionObject) {
-                // Fallback if initial region 1 isn't found
-                currentRegionObject = regionData[0];
-                currentRegionId = regionData[0].id;
-            }
+            // Set initial current region object and ID to the first loaded region
+            // This ensures currentRegionId always matches an existing region's ID
+            currentRegionObject = regionData[0]; // Assume regionData is sorted and not empty
+            currentRegionId = regionData[0].id; // Set currentRegionId to the ID of the first region
 
             // Initial setup for collection, region display, and points
             updateCollectionDisplay();
