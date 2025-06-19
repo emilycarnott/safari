@@ -154,7 +154,8 @@
         function parseEncountersCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            return lines.slice(1).map(line => {
+            // Changed: Removed .slice(1) to include the first row
+            return lines.map(line => {
                 const parts = line.split(',');
                 if (parts.length >= 6) {
                     return {
@@ -179,7 +180,8 @@
         function parseRegionsCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            return lines.slice(1).map(line => {
+            // Changed: Removed .slice(1) to include the first row
+            return lines.map(line => {
                 const parts = line.split(',');
                 if (parts.length >= 4) {
                     return {
