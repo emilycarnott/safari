@@ -35,6 +35,16 @@
         <!-- Encounter Area -->
         <div class="flex-1 p-4 flex flex-col items-center justify-center space-y-6 md:border-r md:border-gray-200">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Current Encounter</h1>
+
+            <!-- Region Selection -->
+            <div class="flex flex-col items-center space-y-2 mb-4">
+                <span id="current-region-display" class="text-xl font-semibold text-gray-700">Current: Region 1</span>
+                <div class="flex space-x-2">
+                    <button id="region-1-button" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-bold shadow-md hover:scale-105 transition-transform duration-200">Region 1</button>
+                    <button id="region-2-button" class="px-4 py-2 rounded-lg bg-blue-500 text-blue-50 font-bold shadow-md hover:bg-blue-600 hover:scale-105 transition-transform duration-200">Region 2</button>
+                </div>
+            </div>
+
             <div class="bg-blue-100 rounded-lg p-4 shadow-md text-center w-full max-w-sm">
                 <h2 class="text-2xl font-semibold text-blue-800 mb-2">
                     <span id="encounter-name">Loading encounters...</span>
@@ -65,9 +75,8 @@
     <script type="module">
         // Define the URL for your CSV data
         // IMPORTANT: Replace this with the actual URL to your CSV file on GitHub Pages.
-        // For demonstration, a placeholder CSV with the specified format is used.
-        // Make sure your CSV is publicly accessible.
-        const CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
+        // This CSV now expects 4 columns: ID, Name, Image URL, Region
+        const CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/encounters_with_regions.csv';
 
         // Constants for game timing
         const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
@@ -78,6 +87,9 @@
         const timerBarElement = document.getElementById('timer-bar');
         const timerTextElement = document.getElementById('timer-text');
         const collectionListElement = document.getElementById('collection-list');
+        const currentRegionDisplay = document.getElementById('current-region-display');
+        const region1Button = document.getElementById('region-1-button');
+        const region2Button = document.getElementById('region-2-button');
 
         // Game state variables
         let encounterData = []; // This will now be populated from the CSV
@@ -86,10 +98,11 @@
         let timerAnimationId = null; // Stores the ID of the requestAnimationFrame
         let timerCountdownMs = ENCOUNTER_DURATION_MS; // Current countdown for the bar
         let lastAnimationFrameTime = 0; // Timestamp of the last animation frame
+        let currentRegion = 1; // Start in Region 1
 
         /**
          * Fetches and parses CSV data from the specified URL.
-         * Assumes CSV has columns: ID, Name, Image URL.
+         * Assumes CSV has columns: ID, Name, Image URL, Region.
          * @returns {Promise<Array<Object>>} A promise that resolves with an array of encounter objects.
          */
         async function fetchEncounterData() {
@@ -112,7 +125,7 @@
         /**
          * Parses CSV text into an array of objects.
          * Assumes the first line is the header, and subsequent lines are data.
-         * Expects columns: ID, Name, Image URL (in that order, zero-indexed 0, 1, 2)
+         * Expects columns: ID, Name, Image URL, Region (in that order, zero-indexed 0, 1, 2, 3)
          * @param {string} csvText - The raw CSV content as a string.
          * @returns {Array<Object>} An array of objects, each representing an encounter.
          */
@@ -123,12 +136,13 @@
             // Skip header and process data rows
             const data = lines.slice(1).map(line => {
                 const parts = line.split(','); // Simple split assuming no commas within fields
-                // Ensure there are enough parts before accessing them
-                if (parts.length >= 3) {
+                // Ensure there are enough parts before accessing them (expecting at least 4)
+                if (parts.length >= 4) {
                     return {
-                        // id: parts[0], // ID is not currently used in game logic, but can be kept
+                        id: parts[0].trim(), // ID is not currently used in game logic, but can be kept
                         name: parts[1].trim(),
-                        imageUrl: parts[2].trim()
+                        imageUrl: parts[2].trim(),
+                        region: parseInt(parts[3].trim(), 10) // Parse region as an integer
                     };
                 }
                 return null; // Skip malformed rows
@@ -137,15 +151,18 @@
         }
 
         /**
-         * Selects a random item from the encounterData array.
-         * @returns {Object} A random encounter item.
+         * Selects a random item from the encounterData array, filtered by the current region.
+         * @returns {Object} A random encounter item or a placeholder if no data for the region.
          */
         function getRandomEncounterItem() {
-            if (encounterData.length === 0) {
-                return { name: "No data loaded", imageUrl: "https://placehold.co/200x200/cccccc/333333?text=?" };
+            // Filter encounters by current region
+            const regionalEncounters = encounterData.filter(item => item.region === currentRegion);
+
+            if (regionalEncounters.length === 0) {
+                return { name: `No encounters in Region ${currentRegion}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters" };
             }
-            const randomIndex = Math.floor(Math.random() * encounterData.length);
-            return encounterData[randomIndex];
+            const randomIndex = Math.floor(Math.random() * regionalEncounters.length);
+            return regionalEncounters[randomIndex];
         }
 
         /**
@@ -236,8 +253,57 @@
         }
 
         /**
+         * Changes the active region of the game.
+         * @param {number} regionNum - The region number to switch to (e.g., 1 or 2).
+         */
+        function changeRegion(regionNum) {
+            if (currentRegion === regionNum) {
+                return; // Do nothing if already in this region
+            }
+
+            currentRegion = regionNum;
+            // REMOVED: collectedItems.clear(); // Collection now persists between regions
+            updateCollectionDisplay(); // Still update to refresh if needed, but won't clear
+            updateRegionDisplay(); // Update UI for active region
+
+            // Immediately process a new encounter for the new region
+            // Clear existing interval and timer animation before starting a new one
+            if (encounterIntervalId) {
+                clearInterval(encounterIntervalId);
+            }
+            if (timerAnimationId) {
+                cancelAnimationFrame(timerAnimationId);
+            }
+            processEncounter(); // Process first encounter in new region
+            encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS); // Restart interval
+        }
+
+        /**
+         * Updates the current region display text and highlights the active region button.
+         */
+        function updateRegionDisplay() {
+            currentRegionDisplay.textContent = `Current: Region ${currentRegion}`;
+
+            // Reset all button styles to default
+            region1Button.classList.remove('bg-blue-600', 'text-white');
+            region1Button.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-blue-50');
+
+            region2Button.classList.remove('bg-blue-600', 'text-white');
+            region2Button.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-blue-50');
+
+            // Apply active style to the current region's button
+            if (currentRegion === 1) {
+                region1Button.classList.add('bg-blue-600', 'text-white');
+                region1Button.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-blue-50');
+            } else if (currentRegion === 2) {
+                region2Button.classList.add('bg-blue-600', 'text-white');
+                region2Button.classList.remove('bg-blue-500', 'hover:bg-blue-600', 'text-blue-50');
+            }
+        }
+
+        /**
          * Starts the game by initiating the first encounter and setting up the interval.
-         * This now waits for CSV data to load.
+         * This now waits for CSV data to load and sets up region selection.
          */
         async function startGame() {
             // Display loading state
@@ -254,10 +320,15 @@
                 return; // Stop if no data
             }
 
-            // Initial setup for collection display
-            updateCollectionDisplay();
+            // Set up event listeners for region buttons
+            region1Button.addEventListener('click', () => changeRegion(1));
+            region2Button.addEventListener('click', () => changeRegion(2));
 
-            // Perform the first encounter immediately
+            // Initial setup for collection and region display
+            updateCollectionDisplay();
+            updateRegionDisplay(); // Call to set initial button state and text
+
+            // Perform the first encounter immediately for the starting region (Region 1)
             processEncounter();
 
             // Set up the interval for subsequent encounters
