@@ -37,9 +37,9 @@
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Current Encounter</h1>
             <div class="bg-blue-100 rounded-lg p-4 shadow-md text-center w-full max-w-sm">
                 <h2 class="text-2xl font-semibold text-blue-800 mb-2">
-                    <span id="encounter-name">Waiting...</span>
+                    <span id="encounter-name">Loading encounters...</span>
                 </h2>
-                <img id="encounter-image" src="https://placehold.co/200x200/cccccc/333333?text=?" alt="Encountered Item" class="w-48 h-48 rounded-lg object-cover mx-auto shadow-md border-2 border-blue-300">
+                <img id="encounter-image" src="https://placehold.co/200x200/cccccc/333333?text=Loading..." alt="Encountered Item" class="w-48 h-48 rounded-lg object-cover mx-auto shadow-md border-2 border-blue-300">
             </div>
 
             <!-- Timer Bar -->
@@ -63,20 +63,11 @@
     </div>
 
     <script type="module">
-        // Define the encounter data as a JavaScript array, simulating a parsed CSV
-        // In a real application, you might fetch this from a .csv or .json file.
-        const encounterData = [
-            { name: "Fluffy Cloud", imageUrl: "https://placehold.co/200x200/ADD8E6/000000?text=Cloud" },
-            { name: "Sparkling Gem", imageUrl: "https://placehold.co/200x200/8A2BE2/FFFFFF?text=Gem" },
-            { name: "Singing Bird", imageUrl: "https://placehold.co/200x200/A0DA8C/000000?text=Bird" },
-            { name: "Mystery Mushroom", imageUrl: "https://placehold.co/200x200/D2B48C/000000?text=Mushroom" },
-            { name: "Ancient Relic", imageUrl: "https://placehold.co/200x200/8B4513/FFFFFF?text=Relic" },
-            { name: "Whispering Leaf", imageUrl: "https://placehold.co/200x200/9ACD32/000000?text=Leaf" },
-            { name: "Shiny Pebble", imageUrl: "https://placehold.co/200x200/B0C4DE/000000?text=Pebble" },
-            { name: "Golden Acorn", imageUrl: "https://placehold.co/200x200/FFD700/000000?text=Acorn" },
-            { name: "Rainbow Orb", imageUrl: "https://placehold.co/200x200/FF00FF/FFFFFF?text=Orb" },
-            { name: "Star Dust", imageUrl: "https://placehold.co/200x200/C0C0C0/000000?text=Dust" }
-        ];
+        // Define the URL for your CSV data
+        // IMPORTANT: Replace this with the actual URL to your CSV file on GitHub Pages.
+        // For demonstration, a placeholder CSV with the specified format is used.
+        // Make sure your CSV is publicly accessible.
+        const CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/encounters.csv';
 
         // Constants for game timing
         const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
@@ -89,6 +80,7 @@
         const collectionListElement = document.getElementById('collection-list');
 
         // Game state variables
+        let encounterData = []; // This will now be populated from the CSV
         const collectedItems = new Set(); // Using a Set to store unique item names
         let encounterIntervalId = null; // Stores the ID of the setInterval
         let timerAnimationId = null; // Stores the ID of the requestAnimationFrame
@@ -96,10 +88,62 @@
         let lastAnimationFrameTime = 0; // Timestamp of the last animation frame
 
         /**
+         * Fetches and parses CSV data from the specified URL.
+         * Assumes CSV has columns: ID, Name, Image URL.
+         * @returns {Promise<Array<Object>>} A promise that resolves with an array of encounter objects.
+         */
+        async function fetchEncounterData() {
+            try {
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+                return parseCSV(csvText);
+            } catch (error) {
+                console.error('Error fetching or parsing CSV:', error);
+                encounterNameElement.textContent = 'Error loading data.';
+                encounterImageElement.src = 'https://placehold.co/200x200/FF0000/FFFFFF?text=Error';
+                encounterImageElement.alt = 'Error';
+                return []; // Return empty array on error
+            }
+        }
+
+        /**
+         * Parses CSV text into an array of objects.
+         * Assumes the first line is the header, and subsequent lines are data.
+         * Expects columns: ID, Name, Image URL (in that order, zero-indexed 0, 1, 2)
+         * @param {string} csvText - The raw CSV content as a string.
+         * @returns {Array<Object>} An array of objects, each representing an encounter.
+         */
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            if (lines.length === 0) return [];
+
+            // Skip header and process data rows
+            const data = lines.slice(1).map(line => {
+                const parts = line.split(','); // Simple split assuming no commas within fields
+                // Ensure there are enough parts before accessing them
+                if (parts.length >= 3) {
+                    return {
+                        // id: parts[0], // ID is not currently used in game logic, but can be kept
+                        name: parts[1].trim(),
+                        imageUrl: parts[2].trim()
+                    };
+                }
+                return null; // Skip malformed rows
+            }).filter(item => item !== null); // Filter out any null entries from malformed rows
+            return data;
+        }
+
+        /**
          * Selects a random item from the encounterData array.
          * @returns {Object} A random encounter item.
          */
         function getRandomEncounterItem() {
+            if (encounterData.length === 0) {
+                return { name: "No data loaded", imageUrl: "https://placehold.co/200x200/cccccc/333333?text=?" };
+            }
             const randomIndex = Math.floor(Math.random() * encounterData.length);
             return encounterData[randomIndex];
         }
@@ -193,8 +237,23 @@
 
         /**
          * Starts the game by initiating the first encounter and setting up the interval.
+         * This now waits for CSV data to load.
          */
-        function startGame() {
+        async function startGame() {
+            // Display loading state
+            encounterNameElement.textContent = 'Loading encounters...';
+            encounterImageElement.src = 'https://placehold.co/200x200/cccccc/333333?text=Loading...';
+            encounterImageElement.alt = 'Loading...';
+
+            // Fetch and parse the encounter data from CSV
+            encounterData = await fetchEncounterData();
+
+            if (encounterData.length === 0) {
+                console.error('No encounter data loaded. Game cannot start.');
+                encounterNameElement.textContent = 'Failed to load encounters.';
+                return; // Stop if no data
+            }
+
             // Initial setup for collection display
             updateCollectionDisplay();
 
