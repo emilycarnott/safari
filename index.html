@@ -41,6 +41,51 @@
                 max-height: calc(100vh - 200px); /* Adjust as needed for better fit */
             }
         }
+
+        /* Custom style for folder headers */
+        .folder-header {
+            background-color: #3B82F6; /* Tailwind blue-500 */
+            color: white;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            border-radius: 0.5rem; /* Tailwind rounded-lg */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Tailwind shadow-md */
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .folder-header:hover {
+            background-color: #2563EB; /* Tailwind blue-600 */
+            transform: scale(1.02);
+        }
+
+        .folder-header .arrow-icon {
+            transition: transform 0.2s;
+        }
+
+        .folder-header.collapsed .arrow-icon {
+            transform: rotate(-90deg);
+        }
+
+        .folder-content {
+            padding-left: 0.5rem; /* Indent regions inside folders */
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+            overflow: hidden;
+        }
+        .folder-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+        .folder-content:not(.collapsed) {
+            max-height: 500px; /* Max height to allow transition, adjust as needed */
+            opacity: 1;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans text-inter">
@@ -49,7 +94,7 @@
         <div class="md:w-1/5 p-4 flex flex-col bg-gray-50 rounded-l-lg md:rounded-bl-none rounded-tl-lg md:border-r border-gray-200 shadow-inner overflow-y-auto">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Regions</h2>
             <div id="region-selector-list" class="flex-1 space-y-2 pb-4">
-                <!-- Region buttons will be dynamically inserted here -->
+                <!-- Region folders and buttons will be dynamically inserted here -->
                 <p class="text-gray-500 italic">Loading regions...</p>
             </div>
         </div>
@@ -96,34 +141,38 @@
         // IMPORTANT: Replace these with the actual URLs to your CSV files on GitHub Pages.
         // encounters.csv expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
         const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
-        // regions.csv expects 4 columns: ID, Name, Image URL, Unlock Points
+        // regions.csv expects 5 columns: ID, Name, Image URL, Unlock Points, Folder
         const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
 
         // Constants for game timing
         const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
 
         // DOM elements
-        const mainEncounterArea = document.getElementById('main-encounter-area'); // New: For region background
+        const mainEncounterArea = document.getElementById('main-encounter-area');
         const encounterNameElement = document.getElementById('encounter-name');
         const encounterImageElement = document.getElementById('encounter-image');
         const timerBarElement = document.getElementById('timer-bar');
         const timerTextElement = document.getElementById('timer-text');
         const collectionListElement = document.getElementById('collection-list');
-        const currentRegionNameDisplay = document.getElementById('current-region-name-display'); // Renamed
-        const regionSelectorList = document.getElementById('region-selector-list'); // New: Container for region buttons
+        const currentRegionNameDisplay = document.getElementById('current-region-name-display');
+        const regionSelectorList = document.getElementById('region-selector-list');
         const totalPointsDisplay = document.getElementById('total-points-display');
 
         // Game state variables
-        let encounterData = []; // Populated from encounters.csv
-        let regionData = [];    // New: Populated from regions.csv
-        const collectedItems = new Set(); // Stores names of collected items
+        let encounterData = [];
+        let regionData = [];
+        const collectedItems = new Set();
         let encounterIntervalId = null;
         let timerAnimationId = null;
         let timerCountdownMs = ENCOUNTER_DURATION_MS;
         let lastAnimationFrameTime = 0;
-        let currentRegionId = 1; // Start in Region 1 (by ID)
-        let currentRegionObject = null; // New: Stores the full object of the current region
+        let currentRegionId = 1;
+        let currentRegionObject = null;
         let totalPoints = 0;
+
+        // Keep track of which folders are open/closed
+        const folderStates = {}; // key: folder name, value: boolean (true for open, false for closed)
+
 
         /**
          * Fetches and parses CSV data from the specified URL.
@@ -154,12 +203,11 @@
         function parseEncountersCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            // Removed .slice(1) to include the first row (no header)
             return lines.map(line => {
                 const parts = line.split(',');
                 if (parts.length >= 6) {
                     return {
-                        id: parts[0].trim(), // Keep ID as string
+                        id: parts[0].trim(),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
@@ -173,22 +221,33 @@
 
         /**
          * Parses regions CSV text into an array of objects.
-         * Expects columns: ID, Name, Image URL, Unlock Points
+         * Expects columns: ID, Name, Image URL, Unlock Points, Folder
          * @param {string} csvText - The raw CSV content as a string.
          * @returns {Array<Object>} An array of objects, each representing a region.
          */
         function parseRegionsCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            // Removed .slice(1) to include the first row (no header)
             return lines.map(line => {
                 const parts = line.split(',');
-                if (parts.length >= 4) {
+                // Ensure there are enough parts (expecting at least 5 for folder)
+                if (parts.length >= 5) {
                     return {
                         id: parseInt(parts[0].trim(), 10),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
-                        unlockPoints: parseInt(parts[3].trim(), 10)
+                        unlockPoints: parseInt(parts[3].trim(), 10),
+                        folder: parts[4].trim() || 'Ungrouped' // Default to 'Ungrouped' if folder is empty
+                    };
+                }
+                // Handle cases where folder column might be missing for old CSVs, though not expected here.
+                else if (parts.length >= 4) {
+                     return {
+                        id: parseInt(parts[0].trim(), 10),
+                        name: parts[1].trim(),
+                        imageUrl: parts[2].trim(),
+                        unlockPoints: parseInt(parts[3].trim(), 10),
+                        folder: 'Ungrouped' // Assign default folder
                     };
                 }
                 return null;
@@ -204,7 +263,6 @@
             const regionalEncounters = encounterData.filter(item => item.region === currentRegionId);
 
             if (regionalEncounters.length === 0) {
-                // Return a placeholder that matches the structure, even for no encounters
                 return { id: 'N/A', name: `No encounters in ${currentRegionObject ? currentRegionObject.name : 'this region'}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters", points: 0, rarity: 1 };
             }
 
@@ -223,12 +281,12 @@
                     return item;
                 }
             }
-            return regionalEncounters[0]; // Fallback, should rarely be hit with correct logic
+            return regionalEncounters[0];
         }
 
         /**
          * Updates the collection display on the UI.
-         * Now sorts by ID and displays ID instead of "NEW!".
+         * Now sorts by ID and displays ID next to the name.
          */
         function updateCollectionDisplay() {
             collectionListElement.innerHTML = '';
@@ -238,16 +296,14 @@
                 return;
             }
 
-            // Get full item objects for collected names and sort them by ID
             const collectedItemDetails = Array.from(collectedItems)
                 .map(itemName => encounterData.find(item => item.name === itemName))
-                .filter(item => item !== undefined) // Filter out any items not found (shouldn't happen)
-                .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10)); // Sort by ID numerically
+                .filter(item => item !== undefined)
+                .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
 
             collectedItemDetails.forEach(item => {
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-yellow-200 text-yellow-800 p-2 rounded-md shadow-sm flex items-center justify-between';
-                // Display ID next to the name
                 listItem.innerHTML = `<span>#${item.id} - ${item.name}</span>`;
                 collectionListElement.appendChild(listItem);
             });
@@ -258,7 +314,7 @@
          */
         function updateTotalPointsDisplay() {
             totalPointsDisplay.textContent = totalPoints;
-            renderRegionSelection(); // Re-render region buttons to update locked/unlocked state
+            renderRegionSelection();
         }
 
         /**
@@ -321,49 +377,130 @@
         }
 
         /**
-         * Renders (or re-renders) the region selection buttons based on regionData and totalPoints.
-         * Now includes logic to display a star for completed regions.
+         * Toggles the visibility of a region folder.
+         * @param {string} folderName - The name of the folder to toggle.
+         */
+        function toggleFolder(folderName) {
+            // Get the folder content div
+            const folderContent = document.getElementById(`folder-content-${folderName.replace(/\s/g, '-')}`);
+            const folderHeader = document.getElementById(`folder-header-${folderName.replace(/\s/g, '-')}`);
+
+            if (folderContent && folderHeader) {
+                const isCollapsed = folderContent.classList.toggle('collapsed');
+                folderHeader.classList.toggle('collapsed', isCollapsed);
+                folderStates[folderName] = !isCollapsed; // Update state
+            }
+        }
+
+        /**
+         * Renders (or re-renders) the region selection buttons and folders.
+         * Includes logic for folder organization and completion stars.
          */
         function renderRegionSelection() {
-            regionSelectorList.innerHTML = ''; // Clear existing buttons
+            regionSelectorList.innerHTML = ''; // Clear existing content
 
             if (regionData.length === 0) {
                 regionSelectorList.innerHTML = '<p class="text-gray-500 italic">No regions loaded.</p>';
                 return;
             }
 
-            regionData.forEach(region => {
-                const button = document.createElement('button');
-                const isLocked = totalPoints < region.unlockPoints;
-                const isActive = region.id === currentRegionId;
-
-                // Calculate region completion
-                const encountersInRegion = encounterData.filter(item => item.region === region.id);
-                const uniqueEncountersInRegion = new Set(encountersInRegion.map(item => item.name));
-                const collectedInRegion = Array.from(collectedItems).filter(itemName => uniqueEncountersInRegion.has(itemName)).length;
-                const isRegionComplete = uniqueEncountersInRegion.size > 0 && collectedInRegion === uniqueEncountersInRegion.size;
-
-                let buttonText = region.name;
-                if (isLocked) {
-                    buttonText += ` (${region.unlockPoints} pts)`;
+            // Group regions by folder
+            const regionsByFolder = regionData.reduce((acc, region) => {
+                const folderName = region.folder || 'Ungrouped';
+                if (!acc[folderName]) {
+                    acc[folderName] = [];
                 }
-                if (isRegionComplete) {
-                    buttonText += ` \u{2B50}`; // Add a star emoji for completion
-                }
+                acc[folderName].push(region);
+                return acc;
+            }, {});
 
-                button.textContent = buttonText;
-                button.className = `w-full px-4 py-2 rounded-lg font-bold shadow-md transition-all duration-200 text-left`;
+            // Sort folder names (e.g., alphabetically, with 'Ungrouped' last if desired)
+            const sortedFolderNames = Object.keys(regionsByFolder).sort((a, b) => {
+                if (a === 'Ungrouped') return 1;
+                if (b === 'Ungrouped') return -1;
+                return a.localeCompare(b);
+            });
 
-                if (isActive) {
-                    button.classList.add('bg-blue-600', 'text-white', 'hover:scale-105');
-                } else if (isLocked) {
-                    button.classList.add('bg-gray-300', 'text-gray-600', 'locked-region-button');
-                    button.disabled = true; // Disable interaction for locked regions
+            sortedFolderNames.forEach(folderName => {
+                const folderRegions = regionsByFolder[folderName];
+
+                // Create folder header
+                const folderHeader = document.createElement('button');
+                folderHeader.id = `folder-header-${folderName.replace(/\s/g, '-')}`;
+                folderHeader.className = `folder-header w-full flex justify-between items-center px-4 py-2 mb-2 rounded-lg`;
+                folderHeader.innerHTML = `
+                    <span>${folderName}</span>
+                    <span class="arrow-icon text-xl">&#9660;</span> <!-- Down arrow -->
+                `;
+                folderHeader.addEventListener('click', () => toggleFolder(folderName));
+                regionSelectorList.appendChild(folderHeader);
+
+                // Create folder content container
+                const folderContentDiv = document.createElement('div');
+                folderContentDiv.id = `folder-content-${folderName.replace(/\s/g, '-')}`;
+                folderContentDiv.className = `folder-content space-y-2 mb-2`; // Add mb for spacing below the folder
+                regionSelectorList.appendChild(folderContentDiv);
+
+                // Set initial collapsed state based on folderStates
+                if (folderStates[folderName] === false) { // If explicitly set to closed
+                    folderContentDiv.classList.add('collapsed');
+                    folderHeader.classList.add('collapsed');
+                } else if (Object.keys(folderStates).length === 0 && folderRegions[0] && folderRegions[0].id === 1) {
+                    // Default to open for the first folder found (which should contain Region 1 initially)
+                    folderContentDiv.classList.remove('collapsed');
+                    folderHeader.classList.remove('collapsed');
+                    folderStates[folderName] = true;
+                } else if (folderStates[folderName] === undefined) {
+                    // If not explicitly set, default to open for the first folder, otherwise closed
+                    if (folderRegions.some(region => region.id === currentRegionId)) {
+                        folderContentDiv.classList.remove('collapsed');
+                        folderHeader.classList.remove('collapsed');
+                        folderStates[folderName] = true;
+                    } else {
+                        folderContentDiv.classList.add('collapsed');
+                        folderHeader.classList.add('collapsed');
+                        folderStates[folderName] = false;
+                    }
                 } else {
-                    button.classList.add('bg-blue-500', 'text-blue-50', 'hover:bg-blue-600', 'hover:scale-105');
-                    button.addEventListener('click', () => changeRegion(region.id));
+                    // Restore previously saved state
+                    folderContentDiv.classList.remove('collapsed');
+                    folderHeader.classList.remove('collapsed');
                 }
-                regionSelectorList.appendChild(button);
+
+
+                // Add region buttons to the folder content
+                folderRegions.forEach(region => {
+                    const button = document.createElement('button');
+                    const isLocked = totalPoints < region.unlockPoints;
+                    const isActive = region.id === currentRegionId;
+
+                    const encountersInRegion = encounterData.filter(item => item.region === region.id);
+                    const uniqueEncountersInRegion = new Set(encountersInRegion.map(item => item.name));
+                    const collectedInRegion = Array.from(collectedItems).filter(itemName => uniqueEncountersInRegion.has(itemName)).length;
+                    const isRegionComplete = uniqueEncountersInRegion.size > 0 && collectedInRegion === uniqueEncountersInRegion.size;
+
+                    let buttonText = region.name;
+                    if (isLocked) {
+                        buttonText += ` (${region.unlockPoints} pts)`;
+                    }
+                    if (isRegionComplete) {
+                        buttonText += ` \u{2B50}`; // Star emoji
+                    }
+
+                    button.textContent = buttonText;
+                    button.className = `w-full px-4 py-2 rounded-lg font-bold shadow-sm transition-all duration-200 text-left`;
+
+                    if (isActive) {
+                        button.classList.add('bg-blue-600', 'text-white', 'hover:scale-105');
+                    } else if (isLocked) {
+                        button.classList.add('bg-gray-300', 'text-gray-600', 'locked-region-button');
+                        button.disabled = true;
+                    } else {
+                        button.classList.add('bg-blue-500', 'text-blue-50', 'hover:bg-blue-600', 'hover:scale-105');
+                        button.addEventListener('click', () => changeRegion(region.id));
+                    }
+                    folderContentDiv.appendChild(button);
+                });
             });
         }
 
@@ -374,7 +511,7 @@
          */
         function changeRegion(newRegionId) {
             if (currentRegionId === newRegionId) {
-                return; // Do nothing if already in this region
+                return;
             }
 
             const newRegion = regionData.find(r => r.id === newRegionId);
@@ -385,17 +522,13 @@
 
             if (totalPoints < newRegion.unlockPoints) {
                 console.log(`Not enough points to unlock ${newRegion.name}. Need ${newRegion.unlockPoints} points.`);
-                // Optionally, add a temporary message to the UI here
                 return;
             }
 
             currentRegionId = newRegionId;
-            currentRegionObject = newRegion; // Update the full object
-            updateRegionDisplay(); // Update UI for active region and background
-            updateCollectionDisplay(); // Re-render collection display if needed
-
-            // The existing setInterval will trigger the next encounter
-            // at its scheduled time, using the new currentRegionId.
+            currentRegionObject = newRegion;
+            updateRegionDisplay();
+            updateCollectionDisplay();
         }
 
         /**
@@ -409,29 +542,27 @@
                 currentRegionNameDisplay.textContent = 'Unknown Region';
                 mainEncounterArea.style.backgroundImage = `url('https://placehold.co/800x600/FF0000/FFFFFF?text=Region+Not+Found')`;
             }
-            renderRegionSelection(); // Re-render buttons to highlight active
+            renderRegionSelection();
         }
 
         /**
          * Starts the game by initializing data, UI, and the encounter interval.
          */
         async function startGame() {
-            // Display loading state
             encounterNameElement.textContent = 'Loading game data...';
             encounterImageElement.src = 'https://placehold.co/200x200/cccccc/333333?text=Loading...';
             encounterImageElement.alt = 'Loading...';
             currentRegionNameDisplay.textContent = 'Loading...';
 
-            // Fetch and parse both CSV data files concurrently
             const [encounters, regions] = await Promise.all([
                 fetchCSVData(ENCOUNTERS_CSV_URL, parseEncountersCSV),
                 fetchCSVData(REGIONS_CSV_URL, parseRegionsCSV)
             ]);
 
             encounterData = encounters;
-            regionData = regions.sort((a, b) => a.id - b.id); // Sort regions by ID for consistent display
+            regionData = regions.sort((a, b) => a.id - b.id);
 
-            console.log("Loaded Region Data:", regionData); // For debugging purposes
+            console.log("Loaded Region Data:", regionData);
 
             if (encounterData.length === 0 || regionData.length === 0) {
                 console.error('Failed to load all necessary game data. Game cannot start.');
@@ -441,27 +572,29 @@
                 return;
             }
 
-            // Set initial current region object and ID to the first loaded region
-            // This ensures currentRegionId always matches an existing region's ID
-            currentRegionObject = regionData[0]; // Assume regionData is sorted and not empty
-            currentRegionId = regionData[0].id; // Set currentRegionId to the ID of the first region
+            // Find the initial region based on currentRegionId (default 1)
+            currentRegionObject = regionData.find(r => r.id === currentRegionId);
+            if (!currentRegionObject) {
+                // Fallback if region 1 isn't found, use the first region in the sorted list
+                currentRegionObject = regionData[0];
+                currentRegionId = regionData[0].id;
+            }
 
-            // Initial setup for collection, region display, and points
+            // Initialize the folder state for the first folder to be open
+            const initialFolder = regionData.find(r => r.id === currentRegionId)?.folder || 'Ungrouped';
+            folderStates[initialFolder] = true;
+
+
             updateCollectionDisplay();
-            updateTotalPointsDisplay(); // This will call renderRegionSelection
-            updateRegionDisplay(); // Set initial region name and background
+            updateTotalPointsDisplay();
+            updateRegionDisplay();
 
-            // Perform the first encounter immediately for the starting region
             processEncounter();
-
-            // Set up the interval for subsequent encounters
             encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS);
         }
 
-        // Start the game when the window loads
         window.onload = startGame;
 
-        // Cleanup on page unload (optional, but good practice for long-running intervals)
         window.onbeforeunload = () => {
             if (encounterIntervalId) {
                 clearInterval(encounterIntervalId);
