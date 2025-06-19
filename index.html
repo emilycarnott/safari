@@ -69,14 +69,18 @@
                     <li class="text-gray-500 italic">No items collected yet.</li>
                 </ul>
             </div>
+            <!-- Total Points Display -->
+            <div class="mt-4 p-3 bg-purple-100 rounded-lg shadow-md text-center">
+                <h2 class="text-xl font-semibold text-purple-800">Total Points: <span id="total-points-display" class="text-2xl font-bold text-purple-900">0</span></h2>
+            </div>
         </div>
     </div>
 
     <script type="module">
         // Define the URL for your CSV data
         // IMPORTANT: Replace this with the actual URL to your CSV file on GitHub Pages.
-        // This CSV now expects 5 columns: ID, Name, Image URL, Region, Rarity
-        const CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
+        // This CSV now expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
+        const CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/encounters_with_points.csv';
 
         // Constants for game timing
         const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
@@ -90,6 +94,7 @@
         const currentRegionDisplay = document.getElementById('current-region-display');
         const region1Button = document.getElementById('region-1-button');
         const region2Button = document.getElementById('region-2-button');
+        const totalPointsDisplay = document.getElementById('total-points-display'); // New: Points display element
 
         // Game state variables
         let encounterData = []; // This will now be populated from the CSV
@@ -99,10 +104,11 @@
         let timerCountdownMs = ENCOUNTER_DURATION_MS; // Current countdown for the bar
         let lastAnimationFrameTime = 0; // Timestamp of the last animation frame
         let currentRegion = 1; // Start in Region 1
+        let totalPoints = 0; // New: Accumulated points
 
         /**
          * Fetches and parses CSV data from the specified URL.
-         * Assumes CSV has columns: ID, Name, Image URL, Region, Rarity.
+         * Assumes CSV has columns: ID, Name, Image URL, Region, Rarity, Points.
          * @returns {Promise<Array<Object>>} A promise that resolves with an array of encounter objects.
          */
         async function fetchEncounterData() {
@@ -125,7 +131,7 @@
         /**
          * Parses CSV text into an array of objects.
          * Assumes the first line is the header, and subsequent lines are data.
-         * Expects columns: ID, Name, Image URL, Region, Rarity (in that order, zero-indexed 0, 1, 2, 3, 4)
+         * Expects columns: ID, Name, Image URL, Region, Rarity, Points (in that order, zero-indexed 0, 1, 2, 3, 4, 5)
          * @param {string} csvText - The raw CSV content as a string.
          * @returns {Array<Object>} An array of objects, each representing an encounter.
          */
@@ -136,14 +142,15 @@
             // Skip header and process data rows
             const data = lines.slice(1).map(line => {
                 const parts = line.split(','); // Simple split assuming no commas within fields
-                // Ensure there are enough parts before accessing them (expecting at least 5)
-                if (parts.length >= 5) {
+                // Ensure there are enough parts before accessing them (expecting at least 6)
+                if (parts.length >= 6) {
                     return {
                         id: parts[0].trim(),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10), // Parse region as an integer
-                        rarity: parseInt(parts[4].trim(), 10)  // Parse rarity as an integer
+                        rarity: parseInt(parts[4].trim(), 10),  // Parse rarity as an integer
+                        points: parseInt(parts[5].trim(), 10)  // Parse points as an integer
                     };
                 }
                 return null; // Skip malformed rows
@@ -161,7 +168,7 @@
             const regionalEncounters = encounterData.filter(item => item.region === currentRegion);
 
             if (regionalEncounters.length === 0) {
-                return { name: `No encounters in Region ${currentRegion}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters" };
+                return { name: `No encounters in Region ${currentRegion}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters", points: 0 }; // Add points: 0 to placeholder
             }
 
             // Calculate total weight for weighted random selection
@@ -210,6 +217,13 @@
         }
 
         /**
+         * Updates the total points display on the UI.
+         */
+        function updateTotalPointsDisplay() {
+            totalPointsDisplay.textContent = totalPoints;
+        }
+
+        /**
          * Processes an encounter: updates UI, checks for new items, adds to collection.
          */
         function processEncounter() {
@@ -223,9 +237,10 @@
             // Check if the item is new to the collection
             if (!collectedItems.has(item.name)) {
                 collectedItems.add(item.name);
-                console.log(`New item collected: ${item.name}`);
+                totalPoints += item.points; // Add points when a new item is collected
+                console.log(`New item collected: ${item.name}, Points gained: ${item.points}`);
                 updateCollectionDisplay(); // Update collection UI
-                // Potentially add points here in the future
+                updateTotalPointsDisplay(); // Update points UI
             } else {
                 console.log(`Encountered ${item.name} again.`);
             }
@@ -340,6 +355,7 @@
             // Initial setup for collection and region display
             updateCollectionDisplay();
             updateRegionDisplay(); // Call to set initial button state and text
+            updateTotalPointsDisplay(); // Initialize points display
 
             // Perform the first encounter immediately for the starting region (Region 1)
             processEncounter();
