@@ -100,7 +100,7 @@
         const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
 
         // Constants for game timing
-        const ENCOUNTER_DURATION_MS = 5 * 1000; // 15 seconds in milliseconds
+        const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
 
         // DOM elements
         const mainEncounterArea = document.getElementById('main-encounter-area'); // New: For region background
@@ -116,7 +116,7 @@
         // Game state variables
         let encounterData = []; // Populated from encounters.csv
         let regionData = [];    // New: Populated from regions.csv
-        const collectedItems = new Set();
+        const collectedItems = new Set(); // Stores names of collected items
         let encounterIntervalId = null;
         let timerAnimationId = null;
         let timerCountdownMs = ENCOUNTER_DURATION_MS;
@@ -154,12 +154,12 @@
         function parseEncountersCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            // Changed: Removed .slice(1) to include the first row
+            // Removed .slice(1) to include the first row (no header)
             return lines.map(line => {
                 const parts = line.split(',');
                 if (parts.length >= 6) {
                     return {
-                        id: parts[0].trim(),
+                        id: parts[0].trim(), // Keep ID as string
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
@@ -180,7 +180,7 @@
         function parseRegionsCSV(csvText) {
             const lines = csvText.trim().split('\n');
             if (lines.length === 0) return [];
-            // Changed: Removed .slice(1) to include the first row
+            // Removed .slice(1) to include the first row (no header)
             return lines.map(line => {
                 const parts = line.split(',');
                 if (parts.length >= 4) {
@@ -204,7 +204,8 @@
             const regionalEncounters = encounterData.filter(item => item.region === currentRegionId);
 
             if (regionalEncounters.length === 0) {
-                return { name: `No encounters in ${currentRegionObject ? currentRegionObject.name : 'this region'}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters", points: 0 };
+                // Return a placeholder that matches the structure, even for no encounters
+                return { id: 'N/A', name: `No encounters in ${currentRegionObject ? currentRegionObject.name : 'this region'}`, imageUrl: "https://placehold.co/200x200/FF0000/FFFFFF?text=No+Encounters", points: 0, rarity: 1 };
             }
 
             let totalWeight = 0;
@@ -222,11 +223,12 @@
                     return item;
                 }
             }
-            return regionalEncounters[0];
+            return regionalEncounters[0]; // Fallback, should rarely be hit with correct logic
         }
 
         /**
          * Updates the collection display on the UI.
+         * Now sorts by ID and displays ID instead of "NEW!".
          */
         function updateCollectionDisplay() {
             collectionListElement.innerHTML = '';
@@ -236,10 +238,17 @@
                 return;
             }
 
-            collectedItems.forEach(itemName => {
+            // Get full item objects for collected names and sort them by ID
+            const collectedItemDetails = Array.from(collectedItems)
+                .map(itemName => encounterData.find(item => item.name === itemName))
+                .filter(item => item !== undefined) // Filter out any items not found (shouldn't happen)
+                .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10)); // Sort by ID numerically
+
+            collectedItemDetails.forEach(item => {
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-yellow-200 text-yellow-800 p-2 rounded-md shadow-sm flex items-center justify-between';
-                listItem.innerHTML = `<span>${itemName}</span> <span class="text-sm font-semibold text-green-700">NEW!</span>`;
+                // Display ID next to the name
+                listItem.innerHTML = `<span>#${item.id} - ${item.name}</span>`;
                 collectionListElement.appendChild(listItem);
             });
         }
@@ -265,11 +274,11 @@
             if (!collectedItems.has(item.name)) {
                 collectedItems.add(item.name);
                 totalPoints += item.points;
-                console.log(`New item collected: ${item.name}, Points gained: ${item.points}`);
+                console.log(`New item collected: #${item.id} - ${item.name}, Points gained: ${item.points}`);
                 updateCollectionDisplay();
                 updateTotalPointsDisplay();
             } else {
-                console.log(`Encountered ${item.name} again.`);
+                console.log(`Encountered #${item.id} - ${item.name} again.`);
             }
 
             timerCountdownMs = ENCOUNTER_DURATION_MS;
@@ -313,6 +322,7 @@
 
         /**
          * Renders (or re-renders) the region selection buttons based on regionData and totalPoints.
+         * Now includes logic to display a star for completed regions.
          */
         function renderRegionSelection() {
             regionSelectorList.innerHTML = ''; // Clear existing buttons
@@ -327,7 +337,21 @@
                 const isLocked = totalPoints < region.unlockPoints;
                 const isActive = region.id === currentRegionId;
 
-                button.textContent = `${region.name} ${isLocked ? `(${region.unlockPoints} pts)` : ''}`;
+                // Calculate region completion
+                const encountersInRegion = encounterData.filter(item => item.region === region.id);
+                const uniqueEncountersInRegion = new Set(encountersInRegion.map(item => item.name));
+                const collectedInRegion = Array.from(collectedItems).filter(itemName => uniqueEncountersInRegion.has(itemName)).length;
+                const isRegionComplete = uniqueEncountersInRegion.size > 0 && collectedInRegion === uniqueEncountersInRegion.size;
+
+                let buttonText = region.name;
+                if (isLocked) {
+                    buttonText += ` (${region.unlockPoints} pts)`;
+                }
+                if (isRegionComplete) {
+                    buttonText += ` \u{2B50}`; // Add a star emoji for completion
+                }
+
+                button.textContent = buttonText;
                 button.className = `w-full px-4 py-2 rounded-lg font-bold shadow-md transition-all duration-200 text-left`;
 
                 if (isActive) {
@@ -407,7 +431,7 @@
             encounterData = encounters;
             regionData = regions.sort((a, b) => a.id - b.id); // Sort regions by ID for consistent display
 
-            console.log("Loaded Region Data:", regionData); // <-- CHECK YOUR BROWSER'S CONSOLE FOR THIS!
+            console.log("Loaded Region Data:", regionData); // For debugging purposes
 
             if (encounterData.length === 0 || regionData.length === 0) {
                 console.error('Failed to load all necessary game data. Game cannot start.');
