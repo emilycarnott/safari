@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Safari Idle</title>
+    <title>Catching Things Idle Game</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -123,9 +123,30 @@
             font-size: 1rem;
         }
 
-        /* NEW: Style for the encounter image to fit inside the box */
+        /* Encounter image style */
         #encounter-image {
-            object-fit: contain; /* Changed from 'cover' to 'contain' */
+            object-fit: contain;
+        }
+
+        /* Message box styling */
+        #game-message-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            pointer-events: none; /* Clicks pass through when hidden */
+        }
+        #game-message-box.show {
+            opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -137,6 +158,12 @@
             <div id="region-selector-list" class="flex-1 space-y-2 pb-4">
                 <!-- Region folders and buttons will be dynamically inserted here -->
                 <p class="text-gray-500 italic">Loading regions...</p>
+            </div>
+            <!-- Save/Load Buttons -->
+            <div class="flex flex-col space-y-2 mt-auto p-2 border-t border-gray-200">
+                <button id="save-game-button" class="w-full px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition-colors">Save Game</button>
+                <button id="load-game-button" class="w-full px-4 py-2 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition-colors">Load Game</button>
+                <input type="file" id="load-file-input" accept=".json" class="hidden">
             </div>
         </div>
 
@@ -150,7 +177,7 @@
                 <h2 class="text-2xl font-semibold text-blue-800 mb-2">
                     <span id="encounter-name">Loading encounters...</span>
                 </h2>
-                <img id="encounter-image" src="https://placehold.co/200x200/cccccc/333333?text=Loading..." alt="Encountered Item" class="w-48 h-48 rounded-lg object-cover mx-auto shadow-md border-2 border-blue-300">
+                <img id="encounter-image" src="https://placehold.co/200x200/cccccc/333333?text=Loading..." alt="Encountered Item" class="w-48 h-48 rounded-lg object-contain mx-auto shadow-md border-2 border-blue-300">
             </div>
 
             <!-- Timer Bar -->
@@ -184,16 +211,16 @@
         <p id="collection-popup-name"></p>
     </div>
 
+    <!-- Game Message Box -->
+    <div id="game-message-box"></div>
+
     <script type="module">
         // Define the URLs for your CSV data files
-        // IMPORTANT: These URLs have been updated as per your request.
-        // encounters.csv expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
         const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
-        // regions.csv expects 5 columns: ID, Name, Image URL, Unlock Points, Folder
         const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
 
         // Constants for game timing
-        const ENCOUNTER_DURATION_MS = 3 * 1000; // 15 seconds in milliseconds
+        const ENCOUNTER_DURATION_MS = 15 * 1000;
 
         // DOM elements
         const mainEncounterArea = document.getElementById('main-encounter-area');
@@ -205,11 +232,15 @@
         const currentRegionNameDisplay = document.getElementById('current-region-name-display');
         const regionSelectorList = document.getElementById('region-selector-list');
         const totalPointsDisplay = document.getElementById('total-points-display');
-
-        // New DOM elements for the collection image pop-up
         const collectionImagePopup = document.getElementById('collection-image-popup');
         const collectionPopupImage = document.getElementById('collection-popup-image');
         const collectionPopupName = document.getElementById('collection-popup-name');
+
+        // New DOM elements for Save/Load
+        const saveGameButton = document.getElementById('save-game-button');
+        const loadGameButton = document.getElementById('load-game-button');
+        const loadFileInput = document.getElementById('load-file-input');
+        const gameMessageBox = document.getElementById('game-message-box');
 
         // Game state variables
         let encounterData = [];
@@ -222,10 +253,115 @@
         let currentRegionId = 1;
         let currentRegionObject = null;
         let totalPoints = 0;
-
-        // Keep track of which folders are open/closed
         const folderStates = {}; // key: folder name, value: boolean (true for open, false for closed)
 
+
+        /**
+         * Displays a temporary message to the user.
+         * @param {string} message - The message to display.
+         * @param {number} duration - Duration in milliseconds to show the message (default 3000).
+         */
+        function showGameMessage(message, duration = 3000) {
+            gameMessageBox.textContent = message;
+            gameMessageBox.classList.add('show');
+            setTimeout(() => {
+                gameMessageBox.classList.remove('show');
+            }, duration);
+        }
+
+        /**
+         * Saves the current game state to a JSON file and triggers a download.
+         */
+        function saveGame() {
+            const gameState = {
+                totalPoints: totalPoints,
+                collectedItems: Array.from(collectedItems), // Convert Set to Array for JSON
+                currentRegionId: currentRegionId,
+                folderStates: folderStates
+                // Add any other game state variables here as they are introduced
+            };
+
+            const jsonString = JSON.stringify(gameState, null, 2); // Pretty print JSON
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'idle_game_save.json';
+            document.body.appendChild(a); // Append to body to make it clickable in all browsers
+            a.click(); // Trigger download
+            document.body.removeChild(a); // Clean up
+            URL.revokeObjectURL(url); // Release the object URL
+            showGameMessage('Game saved successfully!');
+        }
+
+        /**
+         * Loads game state from an uploaded JSON file.
+         * @param {Event} event - The file input change event.
+         */
+        function loadGame(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const loadedState = JSON.parse(e.target.result);
+
+                    // Basic validation for core game state properties
+                    if (typeof loadedState.totalPoints !== 'number' ||
+                        !Array.isArray(loadedState.collectedItems) ||
+                        typeof loadedState.currentRegionId !== 'number' ||
+                        typeof loadedState.folderStates !== 'object') {
+                        throw new Error('Invalid save file format.');
+                    }
+
+                    // Apply loaded state
+                    totalPoints = loadedState.totalPoints;
+                    collectedItems.clear(); // Clear current items
+                    loadedState.collectedItems.forEach(item => collectedItems.add(item)); // Add loaded items
+
+                    // Update current region, ensuring it's valid based on loaded data
+                    // If loaded region ID doesn't exist, default to first region
+                    const newRegion = regionData.find(r => r.id === loadedState.currentRegionId);
+                    currentRegionId = newRegion ? loadedState.currentRegionId : (regionData.length > 0 ? regionData[0].id : 1);
+                    currentRegionObject = newRegion ? newRegion : (regionData.length > 0 ? regionData[0] : null);
+
+                    // Apply folder states, preserving existing keys if new
+                    for (const key in loadedState.folderStates) {
+                        if (loadedState.folderStates.hasOwnProperty(key)) {
+                            folderStates[key] = loadedState.folderStates[key];
+                        }
+                    }
+
+                    // Re-render UI based on loaded state
+                    updateTotalPointsDisplay();
+                    updateCollectionDisplay();
+                    updateRegionDisplay(); // This also calls renderRegionSelection
+
+                    // Reset encounter timer and trigger first encounter with new state
+                    if (encounterIntervalId) {
+                        clearInterval(encounterIntervalId);
+                    }
+                    if (timerAnimationId) {
+                        cancelAnimationFrame(timerAnimationId);
+                    }
+                    processEncounter(); // Start new encounter cycle with loaded region
+                    encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS);
+
+                    showGameMessage('Game loaded successfully!');
+
+                } catch (error) {
+                    console.error('Error loading game:', error);
+                    showGameMessage(`Error loading game: ${error.message || 'Invalid file format.'}`, 5000);
+                }
+            };
+            reader.readAsText(file);
+            // Reset the file input value so that the same file can be loaded again if needed
+            event.target.value = '';
+        }
 
         /**
          * Fetches and parses CSV data from the specified URL.
@@ -260,7 +396,7 @@
                 const parts = line.split(',');
                 if (parts.length >= 6) {
                     return {
-                        id: parts[0].trim(), // Keep ID as string
+                        id: parts[0].trim(),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
@@ -313,11 +449,10 @@
             const match = idString.match(/^([A-Za-z]*)([0-9]+)$/);
             if (match) {
                 return {
-                    prefix: match[1] || '', // Empty string for pure numbers
+                    prefix: match[1] || '',
                     number: parseInt(match[2], 10)
                 };
             }
-            // Fallback for unexpected formats, though ideally IDs follow the pattern
             return { prefix: idString, number: 0 };
         }
 
@@ -362,11 +497,9 @@
             collectionPopupImage.alt = item.name;
             collectionPopupName.textContent = item.name;
 
-            // Position the popup near the mouse cursor
-            // Adjust offsets (+15px) as needed to prevent it from covering the cursor
             collectionImagePopup.style.left = `${event.clientX + 15}px`;
             collectionImagePopup.style.top = `${event.clientY + 15}px`;
-            collectionImagePopup.style.display = 'flex'; // Use flex to center image/text
+            collectionImagePopup.style.display = 'flex';
         }
 
         /**
@@ -396,11 +529,10 @@
                     const idA = parseEncounterId(a.id);
                     const idB = parseEncounterId(b.id);
 
-                    // Sort order: pure numbers first, then D###, then other letters alphabetically
                     const getSortOrder = (prefix) => {
-                        if (prefix === '') return 0; // Pure numbers
-                        if (prefix === 'D') return 1; // D series
-                        return 2; // Other series
+                        if (prefix === '') return 0;
+                        if (prefix === 'D') return 1;
+                        return 2;
                     };
 
                     const orderA = getSortOrder(idA.prefix);
@@ -410,13 +542,10 @@
                         return orderA - orderB;
                     }
 
-                    // If same sort order (e.g., both pure numbers, both D, or both 'other')
-                    // Then sort by prefix alphabetically if they differ
                     if (idA.prefix !== idB.prefix) {
                         return idA.prefix.localeCompare(idB.prefix);
                     }
 
-                    // Finally, sort by number
                     return idA.number - idB.number;
                 });
 
@@ -425,7 +554,6 @@
                 listItem.className = 'bg-yellow-200 text-yellow-800 p-2 rounded-md shadow-sm flex items-center justify-between';
                 listItem.innerHTML = `<span>#${item.id} - ${item.name}</span>`;
 
-                // Add event listeners for hover pop-up
                 listItem.addEventListener('mouseover', (event) => showCollectionImagePopup(event, item));
                 listItem.addEventListener('mouseout', hideCollectionImagePopup);
 
@@ -538,10 +666,10 @@
             }
 
             let regionsToDisplay = [...unlockedRegions];
-            if (nextUnlockableRegion && !regionsToDisplay.some(r => r.id === nextUnlockableRegion.id)) { // Ensure it's not already in unlocked
+            if (nextUnlockableRegion && !regionsToDisplay.some(r => r.id === nextUnlockableRegion.id)) {
                 regionsToDisplay.push(nextUnlockableRegion);
             }
-            regionsToDisplay.sort((a, b) => a.id - b.id); // Keep consistent order
+            regionsToDisplay.sort((a, b) => a.id - b.id);
 
             // Group filtered regions by folder
             const regionsByFolder = regionsToDisplay.reduce((acc, region) => {
@@ -583,7 +711,7 @@
                 folderHeader.className = `folder-header w-full flex justify-between items-center px-4 py-2 mb-2 rounded-lg`;
                 let folderHeaderText = folderName;
                 if (isFolderComplete) {
-                    folderHeaderText += ` \u{2B50}`; // Add star for completed folder
+                    folderHeaderText += ` \u{2B50}`;
                 }
                 folderHeader.innerHTML = `
                     <span>${folderHeaderText}</span>
@@ -626,7 +754,7 @@
                     const isRegionComplete = uniqueEncountersInRegion.size > 0 && collectedInRegion === uniqueEncountersInRegion.size;
 
                     let buttonText = region.name;
-                    if (isLocked) { // Only display unlock points if it's the *single* next unlockable region
+                    if (isLocked) {
                         buttonText += ` (${region.unlockPoints} pts)`;
                     }
                     if (isRegionComplete) {
@@ -667,6 +795,7 @@
 
             if (totalPoints < newRegion.unlockPoints) {
                 console.log(`Not enough points to unlock ${newRegion.name}. Need ${newRegion.unlockPoints} points.`);
+                showGameMessage(`Need ${newRegion.unlockPoints - totalPoints} more points for ${newRegion.name}!`);
                 return;
             }
 
