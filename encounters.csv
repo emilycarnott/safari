@@ -1023,3 +1023,344 @@
 1023,Iron Crown,https://img.pokemondb.net/artwork/large/iron-crown.jpg,9999,1,5
 1024,Terapagos,https://img.pokemondb.net/artwork/large/terapagos.jpg,9999,1,5
 1025,Pecharunt,https://img.pokemondb.net/artwork/large/pecharunt.jpg,9999,1,5
+D6,Arcadiamon In-Tr.,https://digidb.io/images/fieldguide/field062.png,43,5,30
+D10,Tsumemon,https://digidb.io/images/fieldguide/field631.png,43,5,30
+D13,Pagumon,https://digidb.io/images/fieldguide/field567.png,43,5,30
+D20,Arcadiamon Rookie,https://digidb.io/images/fieldguide/field063.png,43,1,5
+D22,Impmon,https://digidb.io/images/fieldguide/field081.png,43,1,5
+D26,Gazimon,https://digidb.io/images/fieldguide/field569.png,43,1,5
+D31,Keramon,https://digidb.io/images/fieldguide/field626.png,43,1,5
+D42,Dracmon,https://digidb.io/images/fieldguide/field457.png,43,1,5
+D49,DemiDevimon,https://digidb.io/images/fieldguide/field097.png,43,1,5
+D69,Arcadiamon Champion,https://digidb.io/images/fieldguide/field064.png,43,2,10
+D72,Wizardmon,https://digidb.io/images/fieldguide/field377.png,43,2,10
+D89,Kurisarimon,https://digidb.io/images/fieldguide/field630.png,43,2,10
+D101,Sangloupmon,https://digidb.io/images/fieldguide/field030.png,43,2,10
+D116,Devimon,https://digidb.io/images/fieldguide/field093.png,43,2,10
+D124,Bakemon,https://digidb.io/images/fieldguide/field013.png,43,2,10
+D128,BlackGatomon,https://digidb.io/images/fieldguide/field043.png,43,2,10
+D142,Arcadiamon Ultimate,https://digidb.io/images/fieldguide/field065.png,43,4,25
+D146,Infermon,https://digidb.io/images/fieldguide/field627.png,43,4,25
+D147,Myotismon,https://digidb.io/images/fieldguide/field085.png,43,4,25
+D151,Etemon,https://digidb.io/images/fieldguide/field311.png,43,4,25
+D163,Cyberdramon,https://digidb.io/images/fieldguide/field719.png,43,4,25
+D168,SkullGreymon,https://digidb.io/images/fieldguide/field404.png,43,4,25
+D169,SkullSatamon,https://digidb.io/images/fieldguide/field006.png,43,4,25
+D172,Taomon,https://digidb.io/images/fieldguide/field405.png,43,4,25
+D190,Phantomon,https://digidb.io/images/fieldguide/field584.png,43,4,25
+D191,BlackKingNumemon,https://digidb.io/images/fieldguide/field753.png,43,4,25
+D193,Vademon,https://digidb.io/images/fieldguide/field411.png,43,4,25
+D197,Matadormon,https://digidb.io/images/fieldguide/field031.png,43,4,25
+D214,LadyDevimon,https://digidb.io/images/fieldguide/field107.png,43,4,25
+D217,Wisemon,https://digidb.io/images/fieldguide/field726.png,43,4,25
+D218,Arcadiamon Mega,https://digidb.io/images/fieldguide/field066.png,43,10,100
+D227,VenomMyotismon,https://digidb.io/images/fieldguide/field600.png,43,10,100
+D232,ChaosGallantmon,https://digidb.io/images/fieldguide/field150.png,43,10,100
+D236,Kuzuhamon,https://digidb.io/images/fieldguide/field754.png,43,10,100
+D238,GranDracmon,https://digidb.io/images/fieldguide/field032.png,43,10,100
+D242,Kerpymon (Blk),https://digidb.io/images/fieldguide/field774.png,43,10,100
+D260,Diaboromon,https://digidb.io/images/fieldguide/field632.png,43,10,100
+D261,Creepymon,https://digidb.io/images/fieldguide/field038.png,43,10,100
+D267,Dorugoramon,https://digidb.io/images/fieldguide/field019.png,43,10,100
+D271,Barbamon,https://digidb.io/images/fieldguide/field036.png,43,10,100
+D273,Piedmon,https://digidb.io/images/fieldguide/field427.png,43,10,100
+D281,Beelzemon,https://digidb.io/images/fieldguide/field035.png,43,10,100
+D282,Beelzemon BM,https://digidb.io/images/fieldguide/field775.png,43,10,100
+D283,Belphemon SM,https://digidb.io/images/fieldguide/field439.png,43,10,100
+D303,Lilithmon,https://digidb.io/images/fieldguide/field034.png,43,10,100
+D306,Crusadermon,https://digidb.io/images/fieldguide/field703.png,43,10,100
+D310,Armageddemon,https://digidb.io/images/fieldguide/field106.png,43,10,100
+D311,Arcadiamon Ultra,https://digidb.io/images/fieldguide/field067.png,43,10,100
+D316,Omnimon Zwart,https://digidb.io/images/fieldguide/field757.png,43,10,100
+D321,Belphemon RM,https://digidb.io/images/fieldguide/field040.png,43,20,300
+D322,Lucemon SM,https://digidb.io/images/fieldguide/field435.png,43,20,300
+D338,Crusadermon NX,https://digidb.io/images/fieldguide/field902.png,43,20,300
+D9,Tsunomon,https://digidb.io/images/fieldguide/field438.png,44,5,30
+D21,Armadillomon,https://digidb.io/images/fieldguide/field707.png,44,1,5
+D32,Gotsumon,https://digidb.io/images/fieldguide/field595.png,44,1,5
+D33,Goblimon,https://digidb.io/images/fieldguide/field111.png,44,1,5
+D38,Chuumon,https://digidb.io/images/fieldguide/field020.png,44,1,5
+D63,Lopmon,https://digidb.io/images/fieldguide/field750.png,44,1,5
+D70,Ankylomon,https://digidb.io/images/fieldguide/field711.png,44,2,10
+D78,Ogremon,https://digidb.io/images/fieldguide/field394.png,44,2,10
+D97,Coredramon (Green),https://digidb.io/images/fieldguide/field209.png,44,2,10
+D99,Golemon,https://digidb.io/images/fieldguide/field005.png,44,2,10
+D100,Cyclonemon,https://digidb.io/images/fieldguide/field452.png,44,2,10
+D106,Sukamon,https://digidb.io/images/fieldguide/field313.png,44,2,10
+D109,Strikedramon,https://digidb.io/images/fieldguide/field016.png,44,2,10
+D113,MudFrigimon,https://digidb.io/images/fieldguide/field759.png,44,2,10
+D117,Turuiemon,https://digidb.io/images/fieldguide/field102.png,44,2,10
+D119,Dorugamon,https://digidb.io/images/fieldguide/field396.png,44,2,10
+D120,Nanimon,https://digidb.io/images/fieldguide/field375.png,44,2,10
+D121,Numemon,https://digidb.io/images/fieldguide/field070.png,44,2,10
+D132,Monochromon,https://digidb.io/images/fieldguide/field369.png,44,2,10
+D136,Raremon,https://digidb.io/images/fieldguide/field590.png,44,2,10
+D137,Leomon,https://digidb.io/images/fieldguide/field072.png,44,2,10
+D145,Meteormon,https://digidb.io/images/fieldguide/field756.png,44,4,25
+D159,Groundramon,https://digidb.io/images/fieldguide/field211.png,44,4,25
+D180,Triceramon,https://digidb.io/images/fieldguide/field033.png,44,4,25
+D186,Pandamon,https://digidb.io/images/fieldguide/field041.png,44,4,25
+D187,Pumpkinmon,https://digidb.io/images/fieldguide/field596.png,44,4,25
+D199,Mamemon,https://digidb.io/images/fieldguide/field412.png,44,4,25
+D215,WereGarurumon,https://digidb.io/images/fieldguide/field140.png,44,4,25
+D216,WereGarurumon (Blk),https://digidb.io/images/fieldguide/field715.png,44,4,25
+D235,KingEtemon,https://digidb.io/images/fieldguide/field127.png,44,10,100
+D241,Craniamon,https://digidb.io/images/fieldguide/field734.png,44,10,100
+D257,Titamon,https://digidb.io/images/fieldguide/field440.png,44,10,100
+D266,Leopardmon LM,https://digidb.io/images/fieldguide/field743.png,44,10,100
+D272,BanchoLeomon,https://digidb.io/images/fieldguide/field049.png,44,10,100
+D278,Breakdramon,https://digidb.io/images/fieldguide/field214.png,44,10,100
+D296,MetalEtemon,https://digidb.io/images/fieldguide/field312.png,44,10,100
+D324,Magnamon,https://digidb.io/images/fieldguide/field382.png,44,20,300
+D23,Elecmon,https://digidb.io/images/fieldguide/field564.png,41,1,5
+D45,Hagurumon,https://digidb.io/images/fieldguide/field009.png,41,1,5
+D79,Guardromon,https://digidb.io/images/fieldguide/field341.png,41,2,10
+D80,Guardromon (Gold),https://digidb.io/images/fieldguide/field760.png,41,2,10
+D84,Gargomon,https://digidb.io/images/fieldguide/field710.png,41,2,10
+D92,Clockmon,https://digidb.io/images/fieldguide/field398.png,41,2,10
+D95,Geremon,https://digidb.io/images/fieldguide/field729.png,41,2,10
+D112,Tankmon,https://digidb.io/images/fieldguide/field621.png,41,2,10
+D140,Waspmon,https://digidb.io/images/fieldguide/field454.png,41,2,10
+D144,Andromon,https://digidb.io/images/fieldguide/field342.png,41,4,25
+D157,CatchMamemon,https://digidb.io/images/fieldguide/field044.png,41,4,25
+D158,CannonBeemon,https://digidb.io/images/fieldguide/field727.png,41,4,25
+D160,GrapLeomon,https://digidb.io/images/fieldguide/field403.png,41,4,25
+D183,Datamon,https://digidb.io/images/fieldguide/field576.png,41,4,25
+D205,MetalTyrannomon,https://digidb.io/images/fieldguide/field364.png,41,4,25
+D206,MetalMamemon,https://digidb.io/images/fieldguide/field413.png,41,4,25
+D211,Rapidmon,https://digidb.io/images/fieldguide/field722.png,41,4,25
+D221,Ebemon,https://digidb.io/images/fieldguide/field451.png,41,10,100
+D233,Chaosdramon,https://digidb.io/images/fieldguide/field422.png,41,10,100
+D239,GroundLocomon,https://digidb.io/images/fieldguide/field704.png,41,10,100
+D254,MegaGargomon,https://digidb.io/images/fieldguide/field741.png,41,10,100
+D255,Darkdramon,https://digidb.io/images/fieldguide/field771.png,41,10,100
+D256,TigerVespamon,https://digidb.io/images/fieldguide/field745.png,41,10,100
+D269,HiAndromon,https://digidb.io/images/fieldguide/field426.png,41,10,100
+D286,Boltmon,https://digidb.io/images/fieldguide/field431.png,41,10,100
+D294,Machinedramon,https://digidb.io/images/fieldguide/field385.png,41,10,100
+D298,MetalGarurumon (Blk),https://digidb.io/images/fieldguide/field182.png,,10,100
+D301,RustTyranomon,https://digidb.io/images/fieldguide/field383.png,41,10,100
+D7,Koromon,https://digidb.io/images/fieldguide/field322.png,43,5,30
+D18,Agumon,https://digidb.io/images/fieldguide/field050.png,43,1,5
+D19,Agumon (Blk),https://digidb.io/images/fieldguide/field143.png,43,1,5
+D27,Gabumon,https://digidb.io/images/fieldguide/field151.png,43,1,5
+D28,Gabumon (Blk),https://digidb.io/images/fieldguide/field713.png,43,1,5
+D29,Guilmon,https://digidb.io/images/fieldguide/field090.png,43,1,5
+D43,Dracomon,https://digidb.io/images/fieldguide/field208.png,43,1,5
+D47,Hackmon,https://digidb.io/images/fieldguide/field687.png,43,1,5
+D68,Agunimon,https://digidb.io/images/fieldguide/field676.png,43,2,10
+D85,Garurumon,https://digidb.io/images/fieldguide/field012.png,43,2,10
+D86,Garurumon (Blk),https://digidb.io/images/fieldguide/field714.png,43,2,10
+D87,Kyubimon,https://digidb.io/images/fieldguide/field395.png,43,2,10
+D88,Growlmon,https://digidb.io/images/fieldguide/field078.png,43,2,10
+D90,Greymon,https://digidb.io/images/fieldguide/field326.png,43,2,10
+D91,Greymon (Blue),https://digidb.io/images/fieldguide/field712.png,43,2,10
+D105,GeoGreymon,https://digidb.io/images/fieldguide/field054.png,43,2,10
+D114,Tyrannomon,https://digidb.io/images/fieldguide/field363.png,43,2,10
+D122,Birdramon,https://digidb.io/images/fieldguide/field308.png,43,2,10
+D123,BaoHuckmon,https://digidb.io/images/fieldguide/field115.png,43,2,10
+D131,Meramon,https://digidb.io/images/fieldguide/field010.png,43,2,10
+D149,BurningGreymon,https://digidb.io/images/fieldguide/field679.png,43,4,25
+D154,Garudamon,https://digidb.io/images/fieldguide/field309.png,43,4,25
+D171,SaviorHuckmon,https://digidb.io/images/fieldguide/field116.png,43,4,25
+D177,SkullMeramon,https://digidb.io/images/fieldguide/field406.png,43,4,25
+D181,DoruGreymon,https://digidb.io/images/fieldguide/field407.png,43,4,25
+D192,BlueMeramon,https://digidb.io/images/fieldguide/field177.png,43,4,25
+D196,Volcanomon,https://digidb.io/images/fieldguide/field059.png,43,4,25
+D202,WarGrowlmon,https://digidb.io/images/fieldguide/field134.png,43,4,25
+D203,MetalGreymon,https://digidb.io/images/fieldguide/field302.png,43,4,25
+D204,MetalGreymon (Blue),https://digidb.io/images/fieldguide/field327.png,43,4,25
+D209,RizeGreymon,https://digidb.io/images/fieldguide/field071.png,43,4,25
+D222,Imperialdramon DM,https://digidb.io/images/fieldguide/field732.png,43,10,100
+D228,WarGreymon,https://digidb.io/images/fieldguide/field027.png,43,10,100
+D230,Gaiomon,https://digidb.io/images/fieldguide/field744.png,43,10,100
+D231,KaiserGreymon,https://digidb.io/images/fieldguide/field677.png,43,10,100
+D234,Gankoomon,https://digidb.io/images/fieldguide/field688.png,43,10,100
+D249,ShineGreymon BM,https://digidb.io/images/fieldguide/field776.png,43,10,100
+D270,PileVolcamon,https://digidb.io/images/fieldguide/field060.png,43,10,100
+D276,BlackWarGreymon,https://digidb.io/images/fieldguide/field175.png,43,10,100
+D284,Hououmon,https://digidb.io/images/fieldguide/field310.png,43,10,100
+D295,Megidramon,https://digidb.io/images/fieldguide/field047.png,43,10,100
+D323,Flamedramon,https://digidb.io/images/fieldguide/field716.png,43,20,300
+D326,Shoutmon,https://digidb.io/images/fieldguide/field682.png,43,20,300
+D327,OmniShoutmon,https://digidb.io/images/fieldguide/field683.png,43,20,300
+D12,Nyaromon,https://digidb.io/images/fieldguide/field515.png,45,5,30
+D30,Kudamon,https://digidb.io/images/fieldguide/field053.png,45,1,5
+D37,Solarmon,https://digidb.io/images/fieldguide/field728.png,45,1,5
+D54,Salamon,https://digidb.io/images/fieldguide/field361.png,45,1,5
+D60,Lucemon,https://digidb.io/images/fieldguide/field390.png,45,1,5
+D73,Lobomon,https://digidb.io/images/fieldguide/field680.png,45,2,10
+D77,Angemon,https://digidb.io/images/fieldguide/field087.png,45,2,10
+D98,GoldNumemon,https://digidb.io/images/fieldguide/field113.png,45,2,10
+D115,Gatomon,https://digidb.io/images/fieldguide/field092.png,45,2,10
+D139,Reppamon,https://digidb.io/images/fieldguide/field077.png,45,2,10
+D152,Angewomon,https://digidb.io/images/fieldguide/field148.png,45,4,25
+D155,KendoGarurumon,https://digidb.io/images/fieldguide/field681.png,45,4,25
+D164,Shakkoumon,https://digidb.io/images/fieldguide/field723.png,45,4,25
+D167,SuperStarmon,https://digidb.io/images/fieldguide/field079.png,45,4,25
+D174,Chirinmon,https://digidb.io/images/fieldguide/field084.png,45,4,25
+D188,Piximon,https://digidb.io/images/fieldguide/field410.png,45,4,25
+D195,MagnaAngemon,https://digidb.io/images/fieldguide/field101.png,45,4,25
+D226,Varodurumon,https://digidb.io/images/fieldguide/field117.png,45,10,100
+D229,Ophanimon,https://digidb.io/images/fieldguide/field421.png,45,10,100
+D243,Kerpymon (Good),https://digidb.io/images/fieldguide/field735.png,45,10,100
+D244,Goldramon,https://digidb.io/images/fieldguide/field048.png,45,10,100
+D246,Sakuyamon,https://digidb.io/images/fieldguide/field425.png,45,10,100
+D248,ShineGreymon,https://digidb.io/images/fieldguide/field094.png,45,10,100
+D250,Justimon,https://digidb.io/images/fieldguide/field737.png,45,10,100
+D251,Kentaurosmon,https://digidb.io/images/fieldguide/field086.png,45,10,100
+D253,Seraphimon,https://digidb.io/images/fieldguide/field315.png,45,10,100
+D262,Gallantmon,https://digidb.io/images/fieldguide/field126.png,45,10,100
+D265,Leopardmon,https://digidb.io/images/fieldguide/field739.png,45,10,100
+D285,Magnadramon,https://digidb.io/images/fieldguide/field453.png,45,10,100
+D287,MagnaGarurumon,https://digidb.io/images/fieldguide/field678.png,45,10,100
+D288,MagnaGarurumon (SV),https://digidb.io/images/fieldguide/field675.png,45,10,100
+D293,MirageGaogamon BM,https://digidb.io/images/fieldguide/field777.png,45,10,100
+D313,Imperialdramon PM,https://digidb.io/images/fieldguide/field420.png,45,10,100
+D315,Omnimon,https://digidb.io/images/fieldguide/field088.png,45,10,100
+D318,Chaosmon VA,https://digidb.io/images/fieldguide/field118.png,45,10,100
+D319,Susanomon,https://digidb.io/images/fieldguide/field104.png,45,10,100
+D320,Gallantmon CM,https://digidb.io/images/fieldguide/field105.png,45,20,300
+D325,Rapidmon (Armor),https://digidb.io/images/fieldguide/field751.png,45,20,300
+D333,Sistermon Blanc,https://digidb.io/images/fieldguide/field781.png,45,20,300
+D334,Sistermon B (Awake.),https://digidb.io/images/fieldguide/field782.png,45,20,300
+D335,Sistermon Ciel,https://digidb.io/images/fieldguide/field783.png,45,20,300
+D336,Sistermon C (Awake.),https://digidb.io/images/fieldguide/field784.png,45,20,300
+D339,Leopardmon NX,https://digidb.io/images/fieldguide/field903.png,45,20,300
+D340,Omnimon NX,https://digidb.io/images/fieldguide/field904.png,45,20,300
+D341,Gallantmon NX,https://digidb.io/images/fieldguide/field905.png,45,20,300
+D1,Kuramon,https://digidb.io/images/fieldguide/field629.png,41,10,100
+D2,Pabumon,https://digidb.io/images/fieldguide/field387.png,41,10,100
+D3,Punimon,https://digidb.io/images/fieldguide/field437.png,41,10,100
+D4,Botamon,https://digidb.io/images/fieldguide/field317.png,41,10,100
+D5,Poyomon,https://digidb.io/images/fieldguide/field320.png,41,10,100
+D11,Tokomon,https://digidb.io/images/fieldguide/field325.png,41,5,30
+D16,Motimon,https://digidb.io/images/fieldguide/field388.png,41,5,30
+D25,Gaomon,https://digidb.io/images/fieldguide/field055.png,41,1,5
+D36,Zubamon,https://digidb.io/images/fieldguide/field697.png,41,1,5
+D41,ToyAgumon,https://digidb.io/images/fieldguide/field708.png,41,1,5
+D44,Dorumon,https://digidb.io/images/fieldguide/field112.png,41,1,5
+D53,Veemon,https://digidb.io/images/fieldguide/field114.png,41,1,5
+D58,Monodramon,https://digidb.io/images/fieldguide/field458.png,41,1,5
+D76,ExVeemon,https://digidb.io/images/fieldguide/field365.png,41,2,10
+D107,Starmon,https://digidb.io/images/fieldguide/field014.png,41,2,10
+D110,Zubaeagermon,https://digidb.io/images/fieldguide/field698.png,41,2,10
+D127,PlatinumSukamon,https://digidb.io/images/fieldguide/field752.png,41,2,10
+D135,Raptordramon,https://digidb.io/images/fieldguide/field025.png,41,2,10
+D143,Antylamon,https://digidb.io/images/fieldguide/field731.png,41,4,25
+D161,Grademon,https://digidb.io/images/fieldguide/field026.png,41,4,25
+D176,Digitamamon,https://digidb.io/images/fieldguide/field374.png,41,4,25
+D178,Duramon,https://digidb.io/images/fieldguide/field699.png,41,4,25
+D182,Knightmon,https://digidb.io/images/fieldguide/field718.png,41,4,25
+D184,Paildramon,https://digidb.io/images/fieldguide/field408.png,41,4,25
+D207,Monzaemon,https://digidb.io/images/fieldguide/field061.png,41,4,25
+D213,Lucemon FM,https://digidb.io/images/fieldguide/field039.png,41,4,25
+D219,Alphamon,https://digidb.io/images/fieldguide/field416.png,41,10,100
+D223,Imperialdramon FM,https://digidb.io/images/fieldguide/field419.png,41,10,100
+D247,Jesmon,https://digidb.io/images/fieldguide/field749.png,41,10,100
+D264,Durandamon,https://digidb.io/images/fieldguide/field700.png,41,10,100
+D275,PlatinumNumemon,https://digidb.io/images/fieldguide/field069.png,41,10,100
+D277,PrinceMamemon,https://digidb.io/images/fieldguide/field429.png,41,10,100
+D289,Mastemon,https://digidb.io/images/fieldguide/field748.png,45,10,100
+D291,Minervamon,https://digidb.io/images/fieldguide/field747.png,45,10,100
+D312,Alphamon Ouryuken,https://digidb.io/images/fieldguide/field766.png,41,10,100
+D317,Chaosmon,https://digidb.io/images/fieldguide/field772.png,41,10,100
+D328,Ryudamon,https://digidb.io/images/fieldguide/field190.png,41,20,300
+D329,Ginryumon,https://digidb.io/images/fieldguide/field191.png,41,20,300
+D330,Hisyaryumon,https://digidb.io/images/fieldguide/field192.png,41,20,300
+D331,Ouryumon,https://digidb.io/images/fieldguide/field193.png,41,20,300
+D332,Apocalymon,https://digidb.io/images/fieldguide/field328.png,45,20,300
+D337,Alphamon NX,https://digidb.io/images/fieldguide/field901.png,45,20,300
+D8,Tanemon,https://digidb.io/images/fieldguide/field512.png,44,5,30
+D14,Yokomon,https://digidb.io/images/fieldguide/field510.png,44,5,30
+D40,Tentomon,https://digidb.io/images/fieldguide/field303.png,44,1,5
+D48,Palmon,https://digidb.io/images/fieldguide/field348.png,44,1,5
+D52,FanBeemon,https://digidb.io/images/fieldguide/field042.png,44,1,5
+D57,Mushroomon,https://digidb.io/images/fieldguide/field607.png,44,1,5
+D59,Lalamon,https://digidb.io/images/fieldguide/field056.png,44,1,5
+D62,Renamon,https://digidb.io/images/fieldguide/field391.png,44,1,5
+D64,Wormmon,https://digidb.io/images/fieldguide/field392.png,44,1,5
+D74,Woodmon,https://digidb.io/images/fieldguide/field393.png,44,2,10
+D82,Kabuterimon,https://digidb.io/images/fieldguide/field304.png,44,2,10
+D93,Kuwagamon,https://digidb.io/images/fieldguide/field367.png,44,2,10
+D102,Sunflowmon,https://digidb.io/images/fieldguide/field058.png,44,2,10
+D108,Stingmon,https://digidb.io/images/fieldguide/field091.png,44,2,10
+D118,Togemon,https://digidb.io/images/fieldguide/field349.png,44,2,10
+D126,Hudiemon,https://digidb.io/images/fieldguide/field022.png,44,2,10
+D129,Vegiemon,https://digidb.io/images/fieldguide/field314.png,44,2,10
+D141,MegaKabuterimon,https://digidb.io/images/fieldguide/field305.png,44,4,25
+D153,Okuwamon,https://digidb.io/images/fieldguide/field401.png,44,4,25
+D165,Cherrymon,https://digidb.io/images/fieldguide/field379.png,44,4,25
+D175,Dinobeemon,https://digidb.io/images/fieldguide/field023.png,44,4,25
+D210,Lilamon,https://digidb.io/images/fieldguide/field073.png,44,4,25
+D212,Lillymon,https://digidb.io/images/fieldguide/field359.png,44,4,25
+D237,GranKuwagamon,https://digidb.io/images/fieldguide/field423.png,44,10,100
+D258,TyrantKabuterimon,https://digidb.io/images/fieldguide/field128.png,44,10,100
+D274,Puppetmon,https://digidb.io/images/fieldguide/field428.png,44,10,100
+D280,HerculesKabuterimon,https://digidb.io/images/fieldguide/field306.png,44,10,100
+D307,Rosemon,https://digidb.io/images/fieldguide/field057.png,44,10,100
+D308,Rosemon BM,https://digidb.io/images/fieldguide/field779.png,44,10,100
+D309,Lotosmon,https://digidb.io/images/fieldguide/field742.png,44,10,100
+D15,Bukamon,https://digidb.io/images/fieldguide/field514.png,42,5,30
+D24,Otamamon,https://digidb.io/images/fieldguide/field582.png,42,1,5
+D34,Gomamon,https://digidb.io/images/fieldguide/field343.png,42,1,5
+D35,Syakomon,https://digidb.io/images/fieldguide/field709.png,42,1,5
+D55,Betamon,https://digidb.io/images/fieldguide/field389.png,42,1,5
+D61,Lunamon,https://digidb.io/images/fieldguide/field002.png,42,1,5
+D65,IceDevimon,https://digidb.io/images/fieldguide/field730.png,42,2,10
+D66,Icemon,https://digidb.io/images/fieldguide/field758.png,42,2,10
+D71,Ikkakumon,https://digidb.io/images/fieldguide/field344.png,42,2,10
+D83,ShellNumemon,https://digidb.io/images/fieldguide/field455.png,42,2,10
+D94,Gekomon,https://digidb.io/images/fieldguide/field399.png,42,2,10
+D103,Seadramon,https://digidb.io/images/fieldguide/field347.png,42,2,10
+D104,Coelamon,https://digidb.io/images/fieldguide/field130.png,42,2,10
+D111,Socerimon,https://digidb.io/images/fieldguide/field755.png,42,2,10
+D133,Frigimon,https://digidb.io/images/fieldguide/field370.png,42,2,10
+D138,Lekismon,https://digidb.io/images/fieldguide/field003.png,42,2,10
+D162,Crescemon,https://digidb.io/images/fieldguide/field004.png,42,4,25
+D170,Zudomon,https://digidb.io/images/fieldguide/field345.png,42,4,25
+D173,Dragomon,https://digidb.io/images/fieldguide/field129.png,42,4,25
+D179,ShogunGekomon,https://digidb.io/images/fieldguide/field376.png,42,4,25
+D185,Panjyamon,https://digidb.io/images/fieldguide/field409.png,42,4,25
+D194,Whamon,https://digidb.io/images/fieldguide/field021.png,42,4,25
+D200,MegaSeadramon,https://digidb.io/images/fieldguide/field132.png,42,4,25
+D224,Vikemon,https://digidb.io/images/fieldguide/field346.png,42,10,100
+D259,Dianamon,https://digidb.io/images/fieldguide/field733.png,42,10,100
+D268,Neptunemon,https://digidb.io/images/fieldguide/field075.png,42,10,100
+D279,Plesiomon,https://digidb.io/images/fieldguide/field450.png,42,10,100
+D290,MarineAngemon,https://digidb.io/images/fieldguide/field024.png,42,10,100
+D297,MetalGarurumon,https://digidb.io/images/fieldguide/field135.png,42,10,100
+D299,MetalSeadramon,https://digidb.io/images/fieldguide/field434.png,42,10,100
+D302,Leviamon,https://digidb.io/images/fieldguide/field037.png,41,10,100
+D17,Wanyamon,https://digidb.io/images/fieldguide/field321.png,41,5,30
+D39,Terriermon,https://digidb.io/images/fieldguide/field701.png,41,1,5
+D46,Patamon,https://digidb.io/images/fieldguide/field096.png,41,1,5
+D50,Biyomon,https://digidb.io/images/fieldguide/field307.png,41,1,5
+D51,Falcomon,https://digidb.io/images/fieldguide/field705.png,41,1,5
+D56,Hawkmon,https://digidb.io/images/fieldguide/field706.png,41,1,5
+D67,Aquilamon,https://digidb.io/images/fieldguide/field015.png,41,2,10
+D75,Airdramon,https://digidb.io/images/fieldguide/field011.png,41,2,10
+D81,GaoGamon,https://digidb.io/images/fieldguide/field068.png,41,2,10
+D96,Coredramon (Blue),https://digidb.io/images/fieldguide/field218.png,41,2,10
+D125,Veedramon,https://digidb.io/images/fieldguide/field397.png,41,2,10
+D130,Peckmon,https://digidb.io/images/fieldguide/field702.png,41,2,10
+D134,Unimon,https://digidb.io/images/fieldguide/field548.png,41,2,10
+D148,Wingdramon,https://digidb.io/images/fieldguide/field210.png,41,4,25
+D150,AeroVeedramon,https://digidb.io/images/fieldguide/field400.png,41,4,25
+D156,Gigadramon,https://digidb.io/images/fieldguide/field402.png,41,4,25
+D166,Silphymon,https://digidb.io/images/fieldguide/field720.png,41,4,25
+D189,HippoGryphonmon,https://digidb.io/images/fieldguide/field082.png,41,4,25
+D198,MachGaogamon,https://digidb.io/images/fieldguide/field074.png,41,4,25
+D201,Megadramon,https://digidb.io/images/fieldguide/field301.png,41,4,25
+D208,Crowmon,https://digidb.io/images/fieldguide/field721.png,41,4,25
+D220,UlforceVeedramon,https://digidb.io/images/fieldguide/field417.png,41,10,100
+D225,Valkyrimon,https://digidb.io/images/fieldguide/field773.png,41,10,100
+D240,Gryphonmon,https://digidb.io/images/fieldguide/field083.png,41,10,100
+D245,SaberLeomon,https://digidb.io/images/fieldguide/field424.png,41,10,100
+D252,Slayerdramon,https://digidb.io/images/fieldguide/field213.png,41,10,100
+D263,Dynasmon,https://digidb.io/images/fieldguide/field738.png,41,10,100
+D292,MirageGaogamon,https://digidb.io/images/fieldguide/field095.png,41,10,100
+D300,Merukimon,https://digidb.io/images/fieldguide/field080.png,41,10,100
+D304,Ravemon,https://digidb.io/images/fieldguide/field740.png,41,10,100
+D305,Ravemon BM,https://digidb.io/images/fieldguide/field778.png,41,10,100
+D314,Examon,https://digidb.io/images/fieldguide/field215.png,41,10,100
