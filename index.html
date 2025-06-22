@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catching Things Idle Game</title>
+    <title>Idle Safari</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -35,13 +35,16 @@
             cursor: not-allowed;
         }
 
-        /* Responsive height for region selector and collection list */
+        /* Responsive height adjustments for columns */
         @media (min-width: 768px) {
-            /* Removed fixed max-height from #region-selector-list */
-            /* The parent flex container (md:w-1/5) will now handle scrolling */
-            /* #region-selector-list no longer needs max-height */
-            #collection-list-container {
-                max-height: calc(100vh - 200px); /* Adjust as needed for better fit */
+            .column-scroll-container {
+                max-height: calc(100vh - 8rem);
+                overflow-y: auto;
+            }
+            #game-container {
+                height: 80vh;
+                min-height: 600px;
+                max-width: 80rem;
             }
         }
 
@@ -92,9 +95,9 @@
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans text-inter">
-    <div id="game-container" class="flex flex-col md:flex-row bg-white rounded-lg shadow-xl p-6 w-full max-w-6xl h-[80vh] min-h-[600px]">
+    <div id="game-container" class="flex flex-col md:flex-row bg-white rounded-lg shadow-xl p-6 w-full max-w-6xl">
         <!-- Region Selector Area -->
-        <div class="md:w-1/5 p-4 flex flex-col bg-gray-50 rounded-l-lg md:rounded-bl-none rounded-tl-lg md:border-r border-gray-200 shadow-inner overflow-y-auto">
+        <div class="md:w-1/5 p-4 flex flex-col bg-gray-50 rounded-l-lg md:rounded-bl-none rounded-tl-lg md:border-r border-gray-200 shadow-inner column-scroll-container">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Regions</h2>
             <div id="region-selector-list" class="flex-1 space-y-2 pb-4">
                 <!-- Region folders and buttons will be dynamically inserted here -->
@@ -123,18 +126,19 @@
             </div>
         </div>
 
-        <!-- Collection Area -->
-        <div class="md:w-1/4 p-4 md:pl-8 mt-8 md:mt-0 flex flex-col bg-gray-50 rounded-r-lg md:rounded-tr-none rounded-br-lg shadow-inner overflow-y-auto">
-            <h1 class="text-3xl font-bold text-gray-800 mb-4">Your Collection</h1>
-            <div id="collection-list-container" class="bg-yellow-100 rounded-lg p-4 shadow-md flex-1 overflow-y-auto">
-                <ul id="collection-list" class="space-y-2">
-                    <!-- Collection items will be added here -->
+        <!-- Right Column: Collection & Points -->
+        <div class="md:w-1/4 p-4 md:pl-8 mt-8 md:mt-0 flex flex-col bg-gray-50 rounded-r-lg md:rounded-tr-none rounded-br-lg shadow-inner column-scroll-container">
+            <!-- Total Points Display -->
+            <div class="mb-4 p-3 bg-purple-100 rounded-lg shadow-md text-center flex-shrink-0">
+                <h2 class="text-xl font-semibold text-purple-800">Total Points: <span id="total-points-display" class="text-2xl font-bold text-purple-900">0</span></h2>
+            </div>
+
+            <!-- Collection Area -->
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Your Collection</h1>
+            <div id="collection-list-container" class="bg-yellow-100 rounded-lg p-3 shadow-md mb-4 flex-1 overflow-y-auto">
+                <ul id="collection-list" class="space-y-1">
                     <li class="text-gray-500 italic">No items collected yet.</li>
                 </ul>
-            </div>
-            <!-- Total Points Display -->
-            <div class="mt-4 p-3 bg-purple-100 rounded-lg shadow-md text-center">
-                <h2 class="text-xl font-semibold text-purple-800">Total Points: <span id="total-points-display" class="text-2xl font-bold text-purple-900">0</span></h2>
             </div>
         </div>
     </div>
@@ -143,12 +147,12 @@
         // Define the URLs for your CSV data files
         // IMPORTANT: Replace these with the actual URLs to your CSV files on GitHub Pages.
         // encounters.csv expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
-        const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
+        const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/encounters_with_points.csv';
         // regions.csv expects 5 columns: ID, Name, Image URL, Unlock Points, Folder
-        const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
+        const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/google/gemini-canvas-example-data/main/regions_with_folders.csv';
 
         // Constants for game timing
-        const ENCOUNTER_DURATION_MS = 3 * 1000; // 15 seconds in milliseconds
+        const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
 
         // DOM elements
         const mainEncounterArea = document.getElementById('main-encounter-area');
@@ -211,7 +215,8 @@
                 if (parts.length >= 6) {
                     return {
                         id: parts[0].trim(), // Keep ID as string
-                        name: parts[1].trim(),
+                        name: parts[1].
+trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
                         rarity: parseInt(parts[4].trim(), 10),
@@ -233,24 +238,21 @@
             if (lines.length === 0) return [];
             return lines.map(line => {
                 const parts = line.split(',');
-                // Ensure there are enough parts (expecting at least 5 for folder)
                 if (parts.length >= 5) {
                     return {
                         id: parseInt(parts[0].trim(), 10),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         unlockPoints: parseInt(parts[3].trim(), 10),
-                        folder: parts[4].trim() || 'Ungrouped' // Default to 'Ungrouped' if folder is empty
+                        folder: parts[4].trim() || 'Ungrouped'
                     };
-                }
-                // Handle cases where folder column might be missing for old CSVs, though not expected here.
-                else if (parts.length >= 4) {
+                } else if (parts.length >= 4) {
                      return {
                         id: parseInt(parts[0].trim(), 10),
                         name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         unlockPoints: parseInt(parts[3].trim(), 10),
-                        folder: 'Ungrouped' // Assign default folder
+                        folder: 'Ungrouped'
                     };
                 }
                 return null;
@@ -289,7 +291,7 @@
 
         /**
          * Updates the collection display on the UI.
-         * Now sorts by ID and displays ID next to the name.
+         * Sorts by ID and displays ID next to the name.
          */
         function updateCollectionDisplay() {
             collectionListElement.innerHTML = '';
@@ -384,14 +386,13 @@
          * @param {string} folderName - The name of the folder to toggle.
          */
         function toggleFolder(folderName) {
-            // Get the folder content div
             const folderContent = document.getElementById(`folder-content-${folderName.replace(/\s/g, '-')}`);
             const folderHeader = document.getElementById(`folder-header-${folderName.replace(/\s/g, '-')}`);
 
             if (folderContent && folderHeader) {
                 const isCollapsed = folderContent.classList.toggle('collapsed');
                 folderHeader.classList.toggle('collapsed', isCollapsed);
-                folderStates[folderName] = !isCollapsed; // Update state
+                folderStates[folderName] = !isCollapsed;
             }
         }
 
@@ -400,14 +401,13 @@
          * Includes logic for folder organization and completion stars.
          */
         function renderRegionSelection() {
-            regionSelectorList.innerHTML = ''; // Clear existing content
+            regionSelectorList.innerHTML = '';
 
             if (regionData.length === 0) {
                 regionSelectorList.innerHTML = '<p class="text-gray-500 italic">No regions loaded.</p>';
                 return;
             }
 
-            // Group regions by folder
             const regionsByFolder = regionData.reduce((acc, region) => {
                 const folderName = region.folder || 'Ungrouped';
                 if (!acc[folderName]) {
@@ -417,7 +417,6 @@
                 return acc;
             }, {});
 
-            // Sort folder names (e.g., alphabetically, with 'Ungrouped' last if desired)
             const sortedFolderNames = Object.keys(regionsByFolder).sort((a, b) => {
                 if (a === 'Ungrouped') return 1;
                 if (b === 'Ungrouped') return -1;
@@ -427,33 +426,43 @@
             sortedFolderNames.forEach(folderName => {
                 const folderRegions = regionsByFolder[folderName];
 
-                // Create folder header
+                // Calculate folder completion
+                const allEncountersInFolder = new Set();
+                folderRegions.forEach(region => {
+                    encounterData.filter(item => item.region === region.id)
+                                 .forEach(item => allEncountersInFolder.add(item.name));
+                });
+
+                const collectedInFolder = Array.from(collectedItems).filter(itemName => allEncountersInFolder.has(itemName)).length;
+                const isFolderComplete = allEncountersInFolder.size > 0 && collectedInFolder === allEncountersInFolder.size;
+
+
                 const folderHeader = document.createElement('button');
                 folderHeader.id = `folder-header-${folderName.replace(/\s/g, '-')}`;
                 folderHeader.className = `folder-header w-full flex justify-between items-center px-4 py-2 mb-2 rounded-lg`;
+                let folderHeaderText = folderName;
+                if (isFolderComplete) {
+                    folderHeaderText += ` \u{2B50}`; // Add star for completed folder
+                }
                 folderHeader.innerHTML = `
-                    <span>${folderName}</span>
-                    <span class="arrow-icon text-xl">&#9660;</span> <!-- Down arrow -->
+                    <span>${folderHeaderText}</span>
+                    <span class="arrow-icon text-xl">&#9660;</span>
                 `;
                 folderHeader.addEventListener('click', () => toggleFolder(folderName));
                 regionSelectorList.appendChild(folderHeader);
 
-                // Create folder content container
                 const folderContentDiv = document.createElement('div');
                 folderContentDiv.id = `folder-content-${folderName.replace(/\s/g, '-')}`;
-                folderContentDiv.className = `folder-content space-y-2 mb-2`; // Add mb for spacing below the folder
+                folderContentDiv.className = `folder-content space-y-2 mb-2`;
                 regionSelectorList.appendChild(folderContentDiv);
 
-                // Set initial collapsed state based on folderStates
-                // Ensure the folder containing the current active region is open
-                if (folderStates[folderName] === false) { // If explicitly set to closed
+                if (folderStates[folderName] === false) {
                     folderContentDiv.classList.add('collapsed');
                     folderHeader.classList.add('collapsed');
-                } else if (folderStates[folderName] === true) { // If explicitly set to open
+                } else if (folderStates[folderName] === true) {
                     folderContentDiv.classList.remove('collapsed');
                     folderHeader.classList.remove('collapsed');
-                } else { // If state is undefined (first render or new folder)
-                    // Open the folder if it contains the current region, otherwise keep it collapsed
+                } else {
                     if (folderRegions.some(region => region.id === currentRegionId)) {
                         folderContentDiv.classList.remove('collapsed');
                         folderHeader.classList.remove('collapsed');
@@ -465,8 +474,6 @@
                     }
                 }
 
-
-                // Add region buttons to the folder content
                 folderRegions.forEach(region => {
                     const button = document.createElement('button');
                     const isLocked = totalPoints < region.unlockPoints;
@@ -482,7 +489,7 @@
                         buttonText += ` (${region.unlockPoints} pts)`;
                     }
                     if (isRegionComplete) {
-                        buttonText += ` \u{2B50}`; // Star emoji
+                        buttonText += ` \u{2B50}`;
                     }
 
                     button.textContent = buttonText;
@@ -501,7 +508,6 @@
                 });
             });
         }
-
 
         /**
          * Changes the active region of the game.
@@ -570,18 +576,14 @@
                 return;
             }
 
-            // Find the initial region based on currentRegionId (default 1)
             currentRegionObject = regionData.find(r => r.id === currentRegionId);
             if (!currentRegionObject) {
-                // Fallback if region 1 isn't found, use the first region in the sorted list
                 currentRegionObject = regionData[0];
                 currentRegionId = regionData[0].id;
             }
 
-            // Initialize the folder state for the first folder to be open
             const initialFolder = regionData.find(r => r.id === currentRegionId)?.folder || 'Ungrouped';
             folderStates[initialFolder] = true;
-
 
             updateCollectionDisplay();
             updateTotalPointsDisplay();
