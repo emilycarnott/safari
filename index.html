@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catching Things Idle Game</title>
+    <title>Safari Idle</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -181,14 +181,14 @@
 
     <script type="module">
         // Define the URLs for your CSV data files
-        // IMPORTANT: Replace these with the actual URLs to your CSV files on GitHub Pages.
+        // IMPORTANT: These URLs have been updated as per your request.
         // encounters.csv expects 6 columns: ID, Name, Image URL, Region, Rarity, Points
         const ENCOUNTERS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/encounters.csv';
         // regions.csv expects 5 columns: ID, Name, Image URL, Unlock Points, Folder
         const REGIONS_CSV_URL = 'https://raw.githubusercontent.com/emilycarnott/safari/refs/heads/main/regions.csv';
 
         // Constants for game timing
-        const ENCOUNTER_DURATION_MS = 15 * 1000; // 15 seconds in milliseconds
+        const ENCOUNTER_DURATION_MS = 3 * 1000; // 15 seconds in milliseconds
 
         // DOM elements
         const mainEncounterArea = document.getElementById('main-encounter-area');
@@ -300,6 +300,24 @@
         }
 
         /**
+         * Extracts the alphanumeric prefix and numeric part from an ID string.
+         * @param {string} idString - The ID string (e.g., "123", "D45", "ABC7").
+         * @returns {{prefix: string, number: number}} An object with the extracted prefix and number.
+         */
+        function parseEncounterId(idString) {
+            const match = idString.match(/^([A-Za-z]*)([0-9]+)$/);
+            if (match) {
+                return {
+                    prefix: match[1] || '', // Empty string for pure numbers
+                    number: parseInt(match[2], 10)
+                };
+            }
+            // Fallback for unexpected formats, though ideally IDs follow the pattern
+            return { prefix: idString, number: 0 };
+        }
+
+
+        /**
          * Selects a random item from the encounterData array, filtered by the current region,
          * using a weighted random selection based on item rarity.
          * @returns {Object} A random encounter item or a placeholder if no data for the region.
@@ -355,8 +373,8 @@
 
         /**
          * Updates the collection display on the UI.
-         * Sorts by ID and displays ID next to the name.
-         * Now adds hover events for image pop-up.
+         * Sorts by ID (alphanumeric aware) and displays ID next to the name.
+         * Adds hover events for image pop-up.
          */
         function updateCollectionDisplay() {
             collectionListElement.innerHTML = '';
@@ -369,7 +387,33 @@
             const collectedItemDetails = Array.from(collectedItems)
                 .map(itemName => encounterData.find(item => item.name === itemName))
                 .filter(item => item !== undefined)
-                .sort((a, b) => parseInt(a.id, 10) - parseInt(b.id, 10));
+                .sort((a, b) => {
+                    const idA = parseEncounterId(a.id);
+                    const idB = parseEncounterId(b.id);
+
+                    // Sort order: pure numbers first, then D###, then other letters alphabetically
+                    const getSortOrder = (prefix) => {
+                        if (prefix === '') return 0; // Pure numbers
+                        if (prefix === 'D') return 1; // D series
+                        return 2; // Other series
+                    };
+
+                    const orderA = getSortOrder(idA.prefix);
+                    const orderB = getSortOrder(idB.prefix);
+
+                    if (orderA !== orderB) {
+                        return orderA - orderB;
+                    }
+
+                    // If same sort order (e.g., both pure numbers, both D, or both 'other')
+                    // Then sort by prefix alphabetically if they differ
+                    if (idA.prefix !== idB.prefix) {
+                        return idA.prefix.localeCompare(idB.prefix);
+                    }
+
+                    // Finally, sort by number
+                    return idA.number - idB.number;
+                });
 
             collectedItemDetails.forEach(item => {
                 const listItem = document.createElement('li');
