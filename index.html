@@ -512,7 +512,7 @@
 
         /**
          * Renders (or re-renders) the region selection buttons and folders.
-         * Includes logic for folder organization and completion stars.
+         * Includes logic for folder organization, completion stars, and displaying only the next unlockable region.
          */
         function renderRegionSelection() {
             regionSelectorList.innerHTML = '';
@@ -522,7 +522,24 @@
                 return;
             }
 
-            const regionsByFolder = regionData.reduce((acc, region) => {
+            // Filter regions: only show unlocked regions + the single next unlockable region
+            const unlockedRegions = regionData.filter(region => totalPoints >= region.unlockPoints);
+            const lockedRegions = regionData.filter(region => totalPoints < region.unlockPoints);
+
+            let nextUnlockableRegion = null;
+            if (lockedRegions.length > 0) {
+                const sortedLockedRegions = [...lockedRegions].sort((a, b) => a.unlockPoints - b.unlockPoints);
+                nextUnlockableRegion = sortedLockedRegions[0];
+            }
+
+            let regionsToDisplay = [...unlockedRegions];
+            if (nextUnlockableRegion && !regionsToDisplay.some(r => r.id === nextUnlockableRegion.id)) { // Ensure it's not already in unlocked
+                regionsToDisplay.push(nextUnlockableRegion);
+            }
+            regionsToDisplay.sort((a, b) => a.id - b.id); // Keep consistent order
+
+            // Group filtered regions by folder
+            const regionsByFolder = regionsToDisplay.reduce((acc, region) => {
                 const folderName = region.folder || 'Ungrouped';
                 if (!acc[folderName]) {
                     acc[folderName] = [];
@@ -539,6 +556,11 @@
 
             sortedFolderNames.forEach(folderName => {
                 const folderRegions = regionsByFolder[folderName];
+
+                // Only render folder if it contains visible regions
+                if (folderRegions.length === 0) {
+                    return;
+                }
 
                 // Calculate folder completion
                 const allEncountersInFolder = new Set();
@@ -599,7 +621,7 @@
                     const isRegionComplete = uniqueEncountersInRegion.size > 0 && collectedInRegion === uniqueEncountersInRegion.size;
 
                     let buttonText = region.name;
-                    if (isLocked) {
+                    if (isLocked) { // Only display unlock points if it's the *single* next unlockable region
                         buttonText += ` (${region.unlockPoints} pts)`;
                     }
                     if (isRegionComplete) {
