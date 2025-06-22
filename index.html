@@ -163,7 +163,8 @@
             <div class="flex flex-col space-y-2 mt-auto p-2 border-t border-gray-200">
                 <button id="save-game-button" class="w-full px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition-colors">Save Game</button>
                 <button id="load-game-button" class="w-full px-4 py-2 bg-blue-500 text-white font-bold rounded-lg shadow-md hover:bg-blue-600 transition-colors">Load Game</button>
-                <input type="file" id="load-file-input" accept=".json" class="hidden">
+                <!-- Changed: Input type file is now off-screen instead of display:none -->
+                <input type="file" id="load-file-input" accept=".json" style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0;">
             </div>
         </div>
 
@@ -273,6 +274,7 @@
          * Saves the current game state to a JSON file and triggers a download.
          */
         function saveGame() {
+            console.log("Save Game button clicked."); // Debugging
             const gameState = {
                 totalPoints: totalPoints,
                 collectedItems: Array.from(collectedItems), // Convert Set to Array for JSON
@@ -300,8 +302,10 @@
          * @param {Event} event - The file input change event.
          */
         function loadGame(event) {
+            console.log("Load Game file input change detected."); // Debugging
             const file = event.target.files[0];
             if (!file) {
+                console.log("No file selected."); // Debugging
                 return;
             }
 
@@ -309,14 +313,20 @@
             reader.onload = (e) => {
                 try {
                     const loadedState = JSON.parse(e.target.result);
+                    console.log("Loaded State:", loadedState); // Debugging
 
                     // Basic validation for core game state properties
                     if (typeof loadedState.totalPoints !== 'number' ||
                         !Array.isArray(loadedState.collectedItems) ||
                         typeof loadedState.currentRegionId !== 'number' ||
                         typeof loadedState.folderStates !== 'object') {
-                        throw new Error('Invalid save file format.');
+                        throw new Error('Invalid save file format. Missing or incorrect types for core properties.');
                     }
+                    // Further validation: Ensure collectedItems are strings
+                    if (loadedState.collectedItems.some(item => typeof item !== 'string')) {
+                        throw new Error('Invalid save file format. Collected items must be strings.');
+                    }
+
 
                     // Apply loaded state
                     totalPoints = loadedState.totalPoints;
@@ -861,6 +871,14 @@
 
             processEncounter();
             encounterIntervalId = setInterval(processEncounter, ENCOUNTER_DURATION_MS);
+
+            // Add event listeners for save/load after game data is loaded
+            saveGameButton.addEventListener('click', saveGame);
+            loadGameButton.addEventListener('click', () => {
+                console.log("Load Game button clicked, triggering file input click."); // Debugging
+                loadFileInput.click(); // Programmatically click the hidden file input
+            });
+            loadFileInput.addEventListener('change', loadGame);
         }
 
         window.onload = startGame;
