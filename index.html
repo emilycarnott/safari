@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Idle Safari</title>
+    <title>Catching Things Idle Game</title>
     <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -92,6 +92,36 @@
             opacity: 1;
             margin-bottom: 0.5rem;
         }
+
+        /* Style for the image pop-up on hover */
+        #collection-image-popup {
+            position: absolute;
+            display: none; /* Hidden by default */
+            background-color: #fff;
+            border: 2px solid #6366F1; /* Indigo-500 */
+            border-radius: 0.5rem; /* Rounded-lg */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 0.75rem;
+            z-index: 1000; /* Ensure it's on top of other elements */
+            pointer-events: none; /* Allows clicks to pass through to elements beneath */
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        #collection-image-popup img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        #collection-image-popup p {
+            font-weight: bold;
+            color: #1F2937; /* Gray-800 */
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 font-sans text-inter">
@@ -143,6 +173,12 @@
         </div>
     </div>
 
+    <!-- Image Pop-up for Collection Items (hidden by default) -->
+    <div id="collection-image-popup">
+        <img id="collection-popup-image" src="" alt="Collected Item Image">
+        <p id="collection-popup-name"></p>
+    </div>
+
     <script type="module">
         // Define the URLs for your CSV data files
         // IMPORTANT: Replace these with the actual URLs to your CSV files on GitHub Pages.
@@ -164,6 +200,11 @@
         const currentRegionNameDisplay = document.getElementById('current-region-name-display');
         const regionSelectorList = document.getElementById('region-selector-list');
         const totalPointsDisplay = document.getElementById('total-points-display');
+
+        // New DOM elements for the collection image pop-up
+        const collectionImagePopup = document.getElementById('collection-image-popup');
+        const collectionPopupImage = document.getElementById('collection-popup-image');
+        const collectionPopupName = document.getElementById('collection-popup-name');
 
         // Game state variables
         let encounterData = [];
@@ -215,8 +256,7 @@
                 if (parts.length >= 6) {
                     return {
                         id: parts[0].trim(), // Keep ID as string
-                        name: parts[1].
-trim(),
+                        name: parts[1].trim(),
                         imageUrl: parts[2].trim(),
                         region: parseInt(parts[3].trim(), 10),
                         rarity: parseInt(parts[4].trim(), 10),
@@ -290,8 +330,33 @@ trim(),
         }
 
         /**
+         * Shows the image pop-up for a collection item on hover.
+         * @param {MouseEvent} event - The mouseover event.
+         * @param {Object} item - The full item object to display.
+         */
+        function showCollectionImagePopup(event, item) {
+            collectionPopupImage.src = item.imageUrl;
+            collectionPopupImage.alt = item.name;
+            collectionPopupName.textContent = item.name;
+
+            // Position the popup near the mouse cursor
+            // Adjust offsets (+15px) as needed to prevent it from covering the cursor
+            collectionImagePopup.style.left = `${event.clientX + 15}px`;
+            collectionImagePopup.style.top = `${event.clientY + 15}px`;
+            collectionImagePopup.style.display = 'flex'; // Use flex to center image/text
+        }
+
+        /**
+         * Hides the image pop-up for collection items.
+         */
+        function hideCollectionImagePopup() {
+            collectionImagePopup.style.display = 'none';
+        }
+
+        /**
          * Updates the collection display on the UI.
          * Sorts by ID and displays ID next to the name.
+         * Now adds hover events for image pop-up.
          */
         function updateCollectionDisplay() {
             collectionListElement.innerHTML = '';
@@ -310,6 +375,11 @@ trim(),
                 const listItem = document.createElement('li');
                 listItem.className = 'bg-yellow-200 text-yellow-800 p-2 rounded-md shadow-sm flex items-center justify-between';
                 listItem.innerHTML = `<span>#${item.id} - ${item.name}</span>`;
+
+                // Add event listeners for hover pop-up
+                listItem.addEventListener('mouseover', (event) => showCollectionImagePopup(event, item));
+                listItem.addEventListener('mouseout', hideCollectionImagePopup);
+
                 collectionListElement.appendChild(listItem);
             });
         }
